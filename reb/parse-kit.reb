@@ -434,45 +434,25 @@ parsing-to: function [
 
 ]
 
-either system/version > 2.100.0 [; Rebol 3
-
-	parsing-unless: func [
-		{Creates a rule that fails if the rule matches, succeeds if the rule fails. Will not consume input. Susperseeded by Rebol 3's NOT.}
-		rule [block!] {Parse rule.}
-	] [
-		compose/only [not (rule)]
+parsing-unless: func [
+	{Creates a rule that fails if the rule matches, succeeds if the rule fails. Will not consume input.}
+	rule [block!] {Parse rule.}
+	/local new
+] [
+	use [position result] [
+		new: copy/deep [[position: rule (result: [end skip]) | (result: [:position])] result]
+		change/only/part next new/1 rule 1
+		new
 	]
+]
 
-	parsing-when: func [
-		{Creates a rule that succeeds or fails depending on the pattern but does not move input position.}
-		pattern [block!] {Parse pattern.}
-	] [
-		compose/only [and (pattern)]
+parsing-when: func [
+	{Creates a rule that succeeds or fails depending on the pattern but does not move input position.}
+	pattern [block!] {Parse pattern.}
+] [
+	use [position] [
+		compose/only [position: (pattern) :position]
 	]
-
-] [; Rebol 2
-
-	parsing-unless: func [
-		{Creates a rule that fails if the rule matches, succeeds if the rule fails. Will not consume input.}
-		rule [block!] {Parse rule.}
-		/local new
-	] [
-		use [position result] [
-			new: copy/deep [[position: rule (result: [end skip]) | (result: [:position])] result]
-			change/only/part next new/1 rule 1
-			new
-		]
-	]
-
-	parsing-when: func [
-		{Creates a rule that succeeds or fails depending on the pattern but does not move input position.}
-		pattern [block!] {Parse pattern.}
-	] [
-		use [position] [
-			compose/only [position: (pattern) :position]
-		]
-	]
-
 ]
 
 
