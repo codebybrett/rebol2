@@ -26,8 +26,10 @@ load-until-blank: function [
 	wsp: compose [some (charset { ^-})]
 
 	rebol-value: parsing-at x [
-		res: any [attempt [load-next x] []]
-		if not empty? res [second res]
+		attempt [
+			value: none
+			probe load-next 'value x
+		]
 	]
 
 	terminator: [opt wsp newline opt wsp newline]

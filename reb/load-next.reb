@@ -4,7 +4,7 @@ REBOL [
 	Rights: {
 		Copyright 2015 Brett Handley
 
-		Rebol3 load-next by Chris Ross-Gill.
+		Rebol3 load-next by Chris Ross-Gill, new signature by Brett Handley.
 	}
 	License: {
 		Licensed under the Apache License, Version 2.0
@@ -27,11 +27,19 @@ either system/version > 2.100.0 [; Rebol3
 
 ] [; Rebol2
 
-	load-next: function [
-		{Load the next value. Return block with value and new position.}
-		string [string!]
-	] [
-		load/next string
+	load-next: func [
+		{Set word to the next value, return the new position.}
+		word {Word set to represent each value. Will be unset at tail.}
+		position [string!] {Position in the REBOL source.}
+		/local token
+	][
+		unset word
+		if not tail? position [
+			token: load/next position
+			set/any word token/1
+			position: token/2
+		]
+		position
 	]
 ]
 
