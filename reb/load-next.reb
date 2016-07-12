@@ -18,11 +18,13 @@ either system/version > 2.100.0 [; Rebol3
 
 	load-next: function [
 		{Load the next value. Return block with value and new position.}
+		word {Word set to represent each value. Will be unset at tail.}
 		string [string!]
 	] [
 		out: transcode/next to binary! string
 		out/2: skip string subtract length string length to string! out/2
-		out
+		set/any word out/1
+		out/2
 	] ; by @rgchris.
 
 ] [; Rebol2
