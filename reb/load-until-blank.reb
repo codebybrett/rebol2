@@ -28,7 +28,7 @@ load-until-blank: function [
 	rebol-value: parsing-at x [
 		attempt [
 			value: none
-			probe load-next 'value x
+			load-next 'value x
 		]
 	]
 
