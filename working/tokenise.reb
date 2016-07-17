@@ -13,19 +13,24 @@ REBOL [
 
 ;
 ; Tokenise is equivalent to Rebol's REDUCE.
-;
 
 tokenise: func [
     {Get tokens from position until exhausted.}
     tokeniser [function!] {Set word, returns end of token or none. Signature [word [word!] position] -> position}
     position
+    /part {Limits to position.} range [series!]
     /into {Insert tokens into target.} target
     /local token
 ][
 
     if not into [target: make block! []]
 
+    range: if part [
+        compose [unless lesser? index? position (index? range) [break]]
+    ]
+
     forever [
+        do range
         position: tokeniser 'token position
         if not position [break]
         target: insert target get/any 'token
