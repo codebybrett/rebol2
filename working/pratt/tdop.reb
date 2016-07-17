@@ -81,7 +81,7 @@ tdop: func [
         ]
 
         evaluate: func [
-            {Evaluate expressions.}
+            {Evaluate expression and return end position.}
             word [word!] {Word set to the value of the evaluated expression.}
             input {Input to parse.}
             /local result
