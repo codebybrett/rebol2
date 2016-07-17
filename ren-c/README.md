@@ -1,11 +1,9 @@
-reb
-===
+ren-c
+=====
 
-Rebol scripts that support Rebol 2.
+Rebol scripts that run under Rebol 2 using a Ren-C support bridge.
 These scripts were written with Ren-C in mind, but as
-Ren-C is changing rapidly a Ren-C set of scripts will be
-maintained in my Reb repository and the scripts here will
-no longer be maintained for Ren-C.
+Ren-C is changing rapidly they may not always work with the latest Ren-C.
 
 ### Usage ###
 
