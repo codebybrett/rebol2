@@ -7,11 +7,12 @@ load-next: func [
     /local token
 ][
 
-    if not tail? position [
-        token: load/next position
-        set/any word token/1
-        position: token/2
+    if tail? position [
+        return none ; Nothing follows.
     ]
 
-    position
+    token: load/next position
+    set/any word token/1
+
+    token/2
 ]
