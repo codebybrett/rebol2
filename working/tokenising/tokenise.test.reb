@@ -1,6 +1,6 @@
 REBOL []
 
-do %requirements.r
+do %../requirements.r
 do %tokenise.reb
 do %set-next.reb
 

@@ -162,6 +162,16 @@ tdop: func [
             ]
 
             ;
+            ; Default token rest.
+
+            get-rest: func [
+                {Get rest of input.}
+                token {Represents a token.}
+            ][
+                token/rest
+            ]
+
+            ;
             ; Default beginning (head) token - initialise with input.
 
             initialise: func [
@@ -172,16 +182,6 @@ tdop: func [
                     value: none
                     rest: :position
                 ]
-            ]
-
-            ;
-            ; Default token rest.
-
-            get-rest: func [
-                {Get rest of input.}
-                token {Represents a token.}
-            ][
-                token/rest
             ]
 
             ;
