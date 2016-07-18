@@ -53,7 +53,7 @@ REBOL [
 ; ----------------------------------------------------------------------------------------------------------------------
 
 
-do %../set-next.reb
+do %../tokenising/set-next.reb
 
 ;
 ; The algorithm here aims to be a forward only parser and not mandate any particular method of token
