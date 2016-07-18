@@ -18,7 +18,7 @@ tokenise: func [
     {Get tokens from position until exhausted.}
     tokeniser [function!] {Set word, returns end of token or none. Signature [word [word!] position] -> position}
     position
-    /part {Limits to position.} range [series!]
+    /part {Limits to position.} range [series!] ; Could use integer count of matched tokens.
     /into {Insert tokens into target.} target
     /local token
 ][
