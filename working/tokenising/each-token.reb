@@ -16,7 +16,7 @@ each-token: func [
         position [block! string!] {Position in source.}
     ] compose/only [
         position: tokeniser (to lit-word! word) position
-        set word (to paren! body)
+        set/any word (to paren! body)
         position
     ]
 ]

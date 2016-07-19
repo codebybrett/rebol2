@@ -14,4 +14,12 @@ requirements 'each-token [
 			not value? 'x ; Must be a local.
 		]
 	]
+
+	[ {Handles unset return from block.}
+		tokeniser: each-token 'x :set-next []
+		all [
+			none? tokeniser 'token []
+			[] = tokeniser 'token [1]
+		]
+	]
 ]
