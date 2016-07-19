@@ -9,3 +9,5 @@ Could have:
 * longest-token
 * etc.
 
+
+For anyone new to Rebol - this isn't the way to do it, use PARSE.
