@@ -1,12 +1,12 @@
 REBOL []
 
 do %../requirements.r
-do %each-token.reb
+do %do-token.reb
 
-requirements 'each-token [
+requirements 'do-token [
 
 	[
-		tokeniser: each-token 'x :set-next [2 * x]
+		tokeniser: do-token 'x :set-next [2 * x]
 		unset 'x
 		all [
 			[] = tokeniser 'token [1] ; Positioned at tail.
@@ -16,7 +16,7 @@ requirements 'each-token [
 	]
 
 	[ {Handles unset return from block.}
-		tokeniser: each-token 'x :set-next []
+		tokeniser: do-token 'x :set-next []
 		all [
 			none? tokeniser 'token []
 			[] = tokeniser 'token [1]

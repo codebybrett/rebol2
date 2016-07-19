@@ -1,8 +1,8 @@
 REBOL []
 
-each-token: func [
+do-token: func [
     {Create a tokeniser which evaluates a block for each token.}
-    word [word!] {Word set to each token (local).}
+    word [word!] {Word set to token (local to body).}
     tokeniser [function!] {Set word, returns end of token or none. Signature [word [word!] position] -> position}
     body [block!] {Block to evaluate.}
 ][
@@ -11,7 +11,7 @@ each-token: func [
     body: bind/copy body word ; Use the local.
 
     func compose [
-        (rejoin [{Evaluates EACH-TOKEN block for token } uppercase form word {.}])
+        (rejoin [{Evaluates block for token } uppercase form word {.}])
         word [word!] {Word set to each token.}
         position [block! string!] {Position in source.}
     ] compose/only [
