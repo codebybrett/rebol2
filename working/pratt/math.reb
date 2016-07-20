@@ -73,10 +73,10 @@ math-parser: tdop [
     ]
 
     run: func [
-        {Evaluate code of the token. Position likely to be advanced.}
-        rbp
+        {Evaluate code of the token.}
+        ctx {Parser context.}
     ] [
-        compose bind/copy code 'rbp
+        compose bind/copy code ctx
     ]
 ]
 

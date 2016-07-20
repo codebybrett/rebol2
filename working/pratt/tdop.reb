@@ -33,7 +33,7 @@ REBOL [
 ; References:
 ;
 ;	Top Down Operator Precedence (Vaughan R. Pratt)
-;	- http://hall.org.ua/halls/wizzard/pdf/Vaughan.Pratt.TDOP.pdf
+;	- http://web.archive.org/web/20151223215421/http://hall.org.ua/halls/wizzard/pdf/Vaughan.Pratt.TDOP.pdf
 ;	- https://tdop.github.io/ (remastered version of the above)
 ;
 ;	Top-Down operator precedence parsing (Eli Bendersky)
@@ -59,6 +59,9 @@ do %../tokenising/set-next.reb
 ; The algorithm here aims to be a forward only parser and not mandate any particular method of token
 ; representation except the requirement to have a separate end token whose end position (REST) is none.
 
+; TODO:
+; * The variable bp is available for use for calling the parser when reading c.
+
 tdop: func [
     token-spec [block!] {Token definition.}
 ][
@@ -69,7 +72,6 @@ tdop: func [
         lookahead: none; Next token.
 
         lbp: none ; Left Binding Power
-        left: none ; Value of the left argument.
         code: none ; Code used to evaluate a token.
 
         advance: func [
@@ -99,7 +101,7 @@ tdop: func [
         recurse: func [
             {Parses expression at binding power and above.}
             rbp [integer!] {Right Binding Power.}
-            /local eval
+            /local left
         ][
 
             advance
@@ -110,7 +112,7 @@ tdop: func [
                 do make error! rejoin [{Cannot begin an expression with } mold current]
             ]
 
-            set/any 'left token/run rbp
+            set/any 'left token/run 'rbp
 
             ; Process any remaining expression tokens.
             while [
@@ -134,7 +136,7 @@ tdop: func [
                     ]
                 ]
 
-                set/any 'left token/run rbp
+                set/any 'left token/run 'rbp
             ]
 
             ; Return the value of the expression.
@@ -189,9 +191,9 @@ tdop: func [
 
             run: func [
                 {Evaluate code of the token. Position likely to be advanced.}
-                rbp
+                ctx {Parser context.}
             ] [
-                do bind/copy code 'rbp
+                do bind/copy code ctx
             ]
 
         ] bind token-spec self
