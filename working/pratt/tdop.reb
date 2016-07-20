@@ -59,9 +59,6 @@ do %../tokenising/set-next.reb
 ; The algorithm here aims to be a forward only parser and not mandate any particular method of token
 ; representation except the requirement to have a separate end token whose end position (REST) is none.
 
-; TODO:
-; * The variable bp is available for use for calling the parser when reading c.
-
 tdop: func [
     token-spec [block!] {Token definition.}
 ][
@@ -75,7 +72,7 @@ tdop: func [
         code: none ; Code used to evaluate a token.
 
         advance: func [
-            {Advance to next token.}
+            {Advance to next token. Set current from lookahed, load lookahead.}
         ][
             set/any 'current get/any 'lookahead
             set/any 'lookahead token/get-next :lookahead
@@ -92,9 +89,10 @@ tdop: func [
             unset [current lookahead]
             lookahead: token/initialise input
 
-            advance
+            advance ; Prime lookahead.
 
             set/any word recurse 0
+
             token/get-rest :current
         ]
 
