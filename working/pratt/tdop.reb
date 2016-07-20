@@ -102,7 +102,10 @@ tdop: func [
         ][
 
             advance
-            unset [left code]
+            unset reduce [
+                'left
+                in token 'code
+            ]
 
             set/any in token 'code token/get-nud :current
             if not value? in token 'code [
