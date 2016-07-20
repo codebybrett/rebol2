@@ -69,7 +69,6 @@ tdop: func [
         lookahead: none; Next token.
 
         lbp: none ; Left Binding Power
-        code: none ; Code used to evaluate a token.
 
         advance: func [
             {Advance to next token. Set current from lookahed, load lookahead.}
@@ -105,8 +104,8 @@ tdop: func [
             advance
             unset [left code]
 
-            set/any 'code token/get-nud :current
-            if not value? 'code [
+            set/any in token 'code token/get-nud :current
+            if not value? in token 'code [
                 do make error! rejoin [{Cannot begin an expression with } mold current]
             ]
 
@@ -127,8 +126,8 @@ tdop: func [
 
                 advance
 
-                set/any 'code token/get-led :current
-                if not value? 'code [
+                set/any in token 'code token/get-led :current
+                if not value? in token 'code [
                     do make error! rejoin [
                         {Operator } mold current { does not define how to process it's left argument.}
                     ]
@@ -146,6 +145,8 @@ tdop: func [
         ;
 
         token: make context [
+
+            code: none ; Code used to evaluate a token.
 
             ;
             ; Default tokeniser - just take next value from a block as the token.
