@@ -68,8 +68,6 @@ tdop: func [
         current: none ; Represents token.
         lookahead: none; Next token.
 
-        lbp: none ; Left Binding Power
-
         advance: func [
             {Advance to next token. Set current from lookahed, load lookahead.}
         ][
@@ -98,7 +96,7 @@ tdop: func [
         recurse: func [
             {Parses expression at binding power and above.}
             rbp [integer!] {Right Binding Power.}
-            /local left code
+            /local left code lbp
         ][
 
             advance

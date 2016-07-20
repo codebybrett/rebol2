@@ -18,6 +18,12 @@ Want:
 
 How does this implementation relate to the paper?
 
+> The lbp (left binding power) is a property of the current token in the input stream,
+and in general will change each time state q1 is entered.
+The left binding power is the only property of the token not in its semantic code.
+
+* LBP is a local variable of recurse and forms part of the parser environment.
+
 > For the examples we shall assume that lbp, nud and led are really the functions lbp(token), nud(token) and led(token).
 
 * get-lbp, get-nud, get-led.
