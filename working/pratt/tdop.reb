@@ -98,21 +98,18 @@ tdop: func [
         recurse: func [
             {Parses expression at binding power and above.}
             rbp [integer!] {Right Binding Power.}
-            /local left
+            /local left code
         ][
 
             advance
-            unset reduce [
-                'left
-                in token 'code
-            ]
+            unset [left]
 
-            set/any in token 'code token/get-nud :current
-            if not value? in token 'code [
+            set/any 'code token/get-nud :current
+            if not value? 'code [
                 do make error! rejoin [{Cannot begin an expression with } mold current]
             ]
 
-            set/any 'left token/run 'rbp
+            set/any 'left token/run code 'rbp
 
             ; Process any remaining expression tokens.
             while [
@@ -129,14 +126,14 @@ tdop: func [
 
                 advance
 
-                set/any in token 'code token/get-led :current
-                if not value? in token 'code [
+                set/any 'code token/get-led :current
+                if not value? 'code [
                     do make error! rejoin [
                         {Operator } mold current { does not define how to process it's left argument.}
                     ]
                 ]
 
-                set/any 'left token/run 'rbp
+                set/any 'left token/run code 'rbp
             ]
 
             ; Return the value of the expression.
@@ -148,8 +145,6 @@ tdop: func [
         ;
 
         token: make context [
-
-            code: none ; Code used to evaluate a token.
 
             ;
             ; Default tokeniser - just take next value from a block as the token.
@@ -193,6 +188,7 @@ tdop: func [
 
             run: func [
                 {Evaluate code of the token. Position likely to be advanced.}
+                code {Semantic code of the token.}
                 ctx {Parser context.}
             ] [
                 do bind/copy code ctx

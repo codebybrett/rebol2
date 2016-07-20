@@ -74,6 +74,7 @@ math-parser: tdop [
 
     run: func [
         {Evaluate code of the token.}
+        code
         ctx {Parser context.}
     ] [
         compose bind/copy code ctx
