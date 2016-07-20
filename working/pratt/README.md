@@ -70,11 +70,11 @@ though it might be convenient to have some reusable definitions for these.
 
 > (prefix a b c) sets bp←b
 
-* TODO: In what context should BP live?
+* BP should live in a context created by the client code.
 
 > The variable bp is available for use for calling the parser when reading code.
 
-* TODO: BP needs to available to semantic code.
+* The client code will need to make BP available to semantic code.
 
 > (delim x) does lbp(x)←0.
 
@@ -84,6 +84,8 @@ though it might be convenient to have some reusable definitions for these.
 parsing each one by calling parse b, and it returns a LISP list of the results.
 
 * TODO: There should be available a function that equivalent to Rebol's reduce but using the parser.
+
+* TODO: Should be able to implement getlist functionality if required.
 
 * TODO: Check that the haskell style function calls can be made. Refer to the Manella article relating to "someFunction".
 
