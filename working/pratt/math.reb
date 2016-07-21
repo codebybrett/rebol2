@@ -83,8 +83,10 @@ math-parser: tdop [
         code
         parser
     ] [
+
         ; The dialect of COMPOSE has been chosen to encode the semantic code of the tokens.
         ; Ideally only parens should be bound since it is only parens that refer to the parser environment.
+
         compose parser code
     ]
 ]
