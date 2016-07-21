@@ -102,4 +102,5 @@ from Pratt's article.
 
 Other thoughts:
 
-* Experiment with tree rewriting functions. Do they have any relevance to this algorithm?
+* Rebol block input requires recursing on a nested block.
+* TODO: Experiment with tree rewriting functions. Do they have any relevance to this algorithm?

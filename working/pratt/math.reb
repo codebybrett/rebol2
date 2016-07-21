@@ -43,6 +43,12 @@ math-parser: tdop [
            return [(token/value)]
         ]
 
+        if paren? :token/value [
+            use [value][ 
+               return [(to paren! math/only :token/value)]
+            ]
+        ]
+
         operation: select [
             + [(recurse 100)]
             - [negate (recurse 100)]
@@ -84,7 +90,7 @@ math-parser: tdop [
 
 math: funct [
     {Evaluate math expression with standard precedence.}
-    expression [block!]
+    expression [block! paren!]
     /only {Translate the expression only.}
 ] [
     result: none

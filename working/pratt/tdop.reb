@@ -65,23 +65,73 @@ tdop: func [
 
     context [
 
-        current: none ; Represents token.
-        lookahead: none; Next token.
-
-        advance: func [
-            {Advance to next token. Set current from lookahed, load lookahead.}
-        ][
-            set/any 'current get/any 'lookahead
-            set/any 'lookahead token/get-next :lookahead
-            current
-        ]
+        ; Semantic code needs access to these.
+        ; But note that evaluate is recreating them each call - not good:
+        ; - say semantic code uses RECURSE then EVALUATE (or equivalent) then next recurse will
+        ; - be bound to the wrong current and lookahead variables.
+        advance: none
+        recurse: none
 
         evaluate: func [
             {Evaluate expression and return end position.}
             word [word!] {Word set to the value of the evaluated expression.}
             input {Input to parse.}
             /local result
+            current ; Represents token.
+            lookahead ; Next token in stream.
         ] [
+
+            advance: func [
+                {Advance to next token. Set current from lookahed, load lookahead.}
+            ][
+                set/any 'current get/any 'lookahead
+                set/any 'lookahead token/get-next :lookahead
+                current
+            ]
+
+            recurse: func [
+                {Parses expression at binding power and above.}
+                rbp [integer!] {Right Binding Power.}
+                /local left code lbp
+            ][
+
+                advance
+                unset [left]
+
+                set/any 'code token/get-nud :current
+                if not value? 'code [
+                    do make error! rejoin [{Cannot begin an expression with } mold current]
+                ]
+
+                set/any 'left token/run code 'rbp
+
+                ; Process any remaining expression tokens.
+                while [
+                    lbp: either any [
+                        not value? 'lookahead
+                        none? token/get-rest :lookahead
+                    ] [
+                        0 ; End token shall not be processed within the loop.
+                    ][
+                        token/get-lbp :lookahead
+                    ]
+                    lbp > rbp ; Assumes that no binding power will be less than zero.
+                ] [
+
+                    advance
+
+                    set/any 'code token/get-led :current
+                    if not value? 'code [
+                        do make error! rejoin [
+                            {Operator } mold current { does not define how to process it's left argument.}
+                        ]
+                    ]
+                    set/any 'left token/run code 'rbp
+                ]
+
+                ; Return the value of the expression.
+                RETURN get/any 'left
+            ]
 
             unset [current lookahead]
             lookahead: token/initialise input
@@ -91,51 +141,6 @@ tdop: func [
             set/any word recurse 0
 
             token/get-rest :current
-        ]
-
-        recurse: func [
-            {Parses expression at binding power and above.}
-            rbp [integer!] {Right Binding Power.}
-            /local left code lbp
-        ][
-
-            advance
-            unset [left]
-
-            set/any 'code token/get-nud :current
-            if not value? 'code [
-                do make error! rejoin [{Cannot begin an expression with } mold current]
-            ]
-
-            set/any 'left token/run code 'rbp
-
-            ; Process any remaining expression tokens.
-            while [
-                lbp: either any [
-                    not value? 'lookahead
-                    none? token/get-rest :lookahead
-                ] [
-                    0 ; End token shall not be processed within the loop.
-                ][
-                    token/get-lbp :lookahead
-                ]
-                lbp > rbp ; Assumes that no binding power will be less than zero.
-            ] [
-
-                advance
-
-                set/any 'code token/get-led :current
-                if not value? 'code [
-                    do make error! rejoin [
-                        {Operator } mold current { does not define how to process it's left argument.}
-                    ]
-                ]
-
-                set/any 'left token/run code 'rbp
-            ]
-
-            ; Return the value of the expression.
-            RETURN get/any 'left
         ]
 
         ;

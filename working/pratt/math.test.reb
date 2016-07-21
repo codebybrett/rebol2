@@ -28,13 +28,15 @@ requirements 'math [
 		user-error {Expected a single expression.} [math [1 2]]
 	]
 
-	[
-		{Single value.}
+	[{Single value.}
 		1 = math [1]
 	]
 
-	[
-		{Complex expression.}
+	[{Complex expression.}
 		19 = math [1 + 2 * 3 ** 2]
+	]
+
+	[{Grouped expressions.}
+		9 = math [(1 + 2) * 3]
 	]
 ]
