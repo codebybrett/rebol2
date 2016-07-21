@@ -53,6 +53,10 @@ math-parser: tdop [
             ]
         ]
 
+        if block? :token/value [
+            return [(to paren! :token/value)]
+        ]
+
         operation: select [
             + [(recurse 100)]
             - [negate (recurse 100)]

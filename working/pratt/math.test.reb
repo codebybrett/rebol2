@@ -43,4 +43,8 @@ requirements 'math [
 	[{Translation with words and paths.}
 		[add (multiply 3 o/x) w] = math/only [(3 * o/x) + w]
 	]
+
+	[{Blocks interpreted by DO dialect.}
+		[add 1 (if true [2] [3])] = math/only [1 + [if true [2][3]]]
+	]
 ]
