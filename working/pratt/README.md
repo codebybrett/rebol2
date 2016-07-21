@@ -49,7 +49,8 @@ and for their led, noled.
 
 > the language used for the semantic code
 
-* token/run interprets the code and can be overridden by client code.
+* The semantic code for the token is written in whatever language is most convenient.
+* token/interpret interprets this semantic code as required having access to the parser environment.
 
 * TODO: I want to have the choice to allow semantic code to be written within the language being
 defined and therefore interpreted by the parser, or by Rebol's DO dialect.

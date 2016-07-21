@@ -78,12 +78,14 @@ math-parser: tdop [
         ]
     ]
 
-    run: func [
-        {Evaluate code of the token.}
+    interpret: func [
+        {Evaluate the semantic code of the token relative to the parser environment.}
         code
-        ctx {Parser context.}
+        parser
     ] [
-        compose bind/copy code ctx
+        ; The dialect of COMPOSE has been chosen to encode the semantic code of the tokens.
+        ; Ideally only parens should be bound.
+        compose parser code ; Ideally should just bind the parens.
     ]
 ]
 

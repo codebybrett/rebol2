@@ -65,13 +65,6 @@ tdop: func [
 
     context [
 
-        ; Semantic code needs access to these.
-        ; But note that evaluate is recreating them each call - not good:
-        ; - say semantic code uses RECURSE then EVALUATE (or equivalent) then next recurse will
-        ; - be bound to the wrong current and lookahead variables.
-        advance: none
-        recurse: none
-
         evaluate: func [
             {Evaluate expression and return end position.}
             word [word!] {Word set to the value of the evaluated expression.}
@@ -79,6 +72,9 @@ tdop: func [
             /local result
             current ; Represents token.
             lookahead ; Next token in stream.
+            advance
+            recurse
+            parser
         ] [
 
             advance: func [
@@ -92,8 +88,15 @@ tdop: func [
             recurse: func [
                 {Parses expression at binding power and above.}
                 rbp [integer!] {Right Binding Power.}
-                /local left code lbp
+                /local left code lbp parser
             ][
+
+                parser: func [
+                    {Bind code to parser environment.}
+                    code
+                ][
+                    bind bind code 'recurse 'rbp
+                ]
 
                 advance
                 unset [left]
@@ -103,7 +106,8 @@ tdop: func [
                     do make error! rejoin [{Cannot begin an expression with } mold current]
                 ]
 
-                set/any 'left token/run code 'rbp
+                set/any 'left token/interpret code :parser
+                ; Position could be advanced by code.
 
                 ; Process any remaining expression tokens.
                 while [
@@ -126,7 +130,9 @@ tdop: func [
                             {Operator } mold current { does not define how to process it's left argument.}
                         ]
                     ]
-                    set/any 'left token/run code 'rbp
+
+                    set/any 'left token/interpret code :parser
+                    ; Position could be advanced by code.
                 ]
 
                 ; Return the value of the expression.
@@ -187,14 +193,14 @@ tdop: func [
             ]
 
             ;
-            ; Default token code evaluator - just DO the code.
+            ; Default token code evaluator - just DO the code in the context of the parser.
 
-            run: func [
-                {Evaluate code of the token. Position likely to be advanced.}
+            interpret: func [
+                {Evaluate the semantic code of the token relative to the parser environment.}
                 code {Semantic code of the token.}
-                ctx {Parser context.}
+                parser
             ] [
-                do bind/copy code ctx
+                do parser code
             ]
 
         ] bind token-spec self
