@@ -39,4 +39,8 @@ requirements 'math [
 	[{Grouped expressions.}
 		9 = math [(1 + 2) * 3]
 	]
+
+	[{Translation with words and paths.}
+		[add (multiply 3 o/x) w] = math/only [(3 * o/x) + w]
+	]
 ]

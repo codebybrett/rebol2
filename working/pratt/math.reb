@@ -39,8 +39,12 @@ math-parser: tdop [
             do make error! {Expected an expression.}
         ]
 
-        if number? :token/value [
-           return [(token/value)]
+        if any [
+            word? :token/value
+            number? :token/value
+            path? :token/value
+        ] [
+           return [(:token/value)]
         ]
 
         if paren? :token/value [
