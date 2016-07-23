@@ -53,8 +53,6 @@ REBOL [
 ; ----------------------------------------------------------------------------------------------------------------------
 
 
-do %../tokenising/set-next.reb
-
 ;
 ; The algorithm here aims to be a forward only parser and not mandate any particular method of token
 ; representation except the requirement to have a separate end token whose end position (REST) is none.
@@ -69,20 +67,19 @@ tdop: func [
             {Evaluate expression and return end position.}
             word [word!] {Word set to the value of the evaluated expression.}
             input {Input to parse.}
-            /local result
+            /local
             current ; Represents token.
-            lookahead ; Next token in stream.
             advance
             recurse
             parser
+            token-at ; Position of current token.
         ] [
 
             advance: func [
-                {Advance to next token. Set current from lookahed, load lookahead.}
+                {Advance to the next token..}
             ][
-                set/any 'current get/any 'lookahead
-                set/any 'lookahead token/get-next :lookahead
-                current
+                token-at: if value? 'current [token/get-rest :current]
+                set/any 'current token/get-next get/any 'current
             ]
 
             recurse: func [
@@ -98,7 +95,6 @@ tdop: func [
                     bind bind code 'recurse 'rbp
                 ]
 
-                advance
                 unset [left]
 
                 set/any 'code token/get-nud :current
@@ -106,23 +102,23 @@ tdop: func [
                     do make error! rejoin [{Cannot begin an expression with } mold current]
                 ]
 
+                advance
+
                 set/any 'left token/interpret code :parser
                 ; Position could be advanced by code.
 
                 ; Process any remaining expression tokens.
                 while [
                     lbp: either any [
-                        not value? 'lookahead
-                        none? token/get-rest :lookahead
+                        not value? 'current
+                        none? token/get-rest :current
                     ] [
                         0 ; End token shall not be processed within the loop.
                     ][
-                        token/get-lbp :lookahead
+                        token/get-lbp :current
                     ]
                     lbp > rbp ; Assumes that no binding power will be less than zero.
                 ] [
-
-                    advance
 
                     set/any 'code token/get-led :current
                     if not value? 'code [
@@ -131,22 +127,26 @@ tdop: func [
                         ]
                     ]
 
+                    advance ; Next token in expression becomes current.
+
                     set/any 'left token/interpret code :parser
                     ; Position could be advanced by code.
                 ]
 
-                ; Return the value of the expression.
+                ; Return the value of this expression.
                 RETURN get/any 'left
             ]
 
-            unset [current lookahead]
-            lookahead: token/initialise input
+            ;
+            ; Process a single expression.
 
-            advance ; Prime lookahead.
+            unset [token-at current]
+            set/any 'current token/initialise input ; Prime the stream.
+            advance ; Load Current.
 
             set/any word recurse 0
 
-            token/get-rest :current
+            token-at
         ]
 
         ;
@@ -161,11 +161,25 @@ tdop: func [
             get-next: func [
                 {Fetch token following this.}
                 token {Represents a token.}
-                /local value position
+                /local position
             ][
-                if none? position: get-rest token [exit]
+
+                if any [
+                    none? position: get-rest token
+                ] [
+                    return context [rest: none]
+                ]
+
                 make token [
-                    rest: set-next 'value position
+                    rest: (
+                        either tail? position [
+                            none ; End token.
+                        ][
+                            set/any 'value first position
+                            next position
+                        ]
+                    )
+                    ; value field in object is set.
                 ]
             ]
 
@@ -189,6 +203,7 @@ tdop: func [
                 context [
                     value: none
                     rest: :position
+                    (unset 'value)
                 ]
             ]
 
