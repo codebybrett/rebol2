@@ -76,7 +76,7 @@ tdop: func [
         ] [
 
             advance: func [
-                {Advance to the next token..}
+                {Advance to the next token.}
             ][
                 token-at: if value? 'current [token/get-rest :current]
                 set/any 'current token/get-next get/any 'current

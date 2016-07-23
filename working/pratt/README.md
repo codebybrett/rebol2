@@ -54,11 +54,11 @@ and for their led, noled.
 
 > We write check x for if token = x then advance else (print "missing"; print x; halt).
 
-* TODO: Could implement using a Rebol parse rule as a parameter to an internal function MATCH.
+* TODO: Create an example where CHECK is defined by token definition code.
 
 > To run the theorem prover, evaluate k←1; parse 0.
 
-* TODO: Consider how variables can be created, bound by semantic code. What is their environment?
+* Client code will need to manage it's own variables used by semantic code.
 
 > a subset of the definitions of tokens of the language L; all of them are defined in L,
 although in practice one would begin with a host language H (say the target language, here LISP)
