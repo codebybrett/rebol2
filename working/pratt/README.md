@@ -45,7 +45,9 @@ and for their led, noled.
 
 > Also the variable self will have as value the token whose code is missing when the error occurs.
 
-* Implemented as CURRENT.
+* Implemented as THIS. Needed because ADVANCE is called before the code is evaluated and the code
+may need to refer to the current token. Also remember the code itself may call ADVANCE as well.
+* TODO: Because THIS and CODE are set at pretty much the same time, are they the same operation?
 
 > the language used for the semantic code
 
@@ -87,11 +89,16 @@ though it might be convenient to have some reusable definitions for these.
 >  The function (a getlist b) parses a list of expressions delimited by as,
 parsing each one by calling parse b, and it returns a LISP list of the results.
 
-* TODO: There should be available a function that equivalent to Rebol's reduce but using the parser.
+* TODO: There should be available a function that is equivalent to Rebol's reduce but using the parser.
 
 * TODO: Should be able to implement getlist functionality if required.
 
-* TODO: Check that the haskell style function calls can be made. Refer to the Manella article relating to "someFunction".
+* When RECURSE is called it is assumed that an expression evaluation can be started, so an error is raised
+if this is not true. The /OPT refinement makes recurse optional in the sense that no error is raised
+if there is no expression.
+
+* Haskell style function calls can be made parsed. Refer to the Manella article relating to "someFunction". Here
+implemented as a varargs test. 
 
 > The object is to translate...
 

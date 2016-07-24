@@ -47,7 +47,7 @@ REBOL [
 ;   -- Note the commentary on statements in the above and at https://pythonhosted.org/PrattParse/tutorial.html#adding-statements
 ;
 ;	A Monadic Pratt Parser (Matthew Manela) - see discussion of someFunction.
-;	- matthewmanela.com/blog/a-monadic-pratt-parser/
+;	- http://matthewmanela.com/blog/a-monadic-pratt-parser/
 ;	-- (for background on function call syntax in haskell see https://www.fpcomplete.com/school/starting-with-haskell/basics-of-haskell/function-application)
 ;
 ; ----------------------------------------------------------------------------------------------------------------------
@@ -85,7 +85,13 @@ tdop: func [
             recurse: func [
                 {Parses expression at binding power and above.}
                 rbp [integer!] {Right Binding Power.}
-                /local left code lbp parser
+                /opt {Return without error if CURRENT has no NUD.}
+                /local
+                left ; Accumulation variable.
+                this ; Token whose code is executing.
+                code ; Code of the token to evaluate.
+                lbp ; Left binding power of token.
+                parser
             ][
 
                 parser: func [
@@ -99,9 +105,14 @@ tdop: func [
 
                 set/any 'code token/get-nud :current
                 if not value? 'code [
-                    do make error! rejoin [{Cannot begin an expression with } mold current]
+                    either opt [
+                        exit
+                    ][
+                        do make error! rejoin [{Cannot begin an expression with } mold current]
+                    ]
                 ]
 
+                set/any 'this get/any 'current
                 advance
 
                 set/any 'left token/interpret code :parser
@@ -127,6 +138,7 @@ tdop: func [
                         ]
                     ]
 
+                    set/any 'this get/any 'current
                     advance ; Next token in expression becomes current.
 
                     set/any 'left token/interpret code :parser
