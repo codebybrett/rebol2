@@ -3,7 +3,7 @@ REBOL []
 do %../requirements.r
 do %tdop.reb
 
-requirements %tdop.tests.reb [
+requirements %tdop.test.reb [
 
 	['passed = last do %tdop.test.basic.reb]
 	['passed = last do %tdop.test.matching.reb]

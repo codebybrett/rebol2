@@ -2,7 +2,7 @@ REBOL []
 
 do %tdop.reb
 
-requirements 'TDOP [
+requirements %tdop.test.varargs.reb [
 
 	[{Support variadic functions.}
 

@@ -2,7 +2,7 @@ REBOL []
 
 do %tdop.reb
 
-requirements 'TDOP [
+requirements %tdop.test.matching.reb [
 
 	[{Can match next token.}
 
@@ -12,13 +12,14 @@ requirements 'TDOP [
 				token [any-type!]
 			][
 
-				none? get-rest token [exit]
-
 				if 'if = :token/value [
 					return [
-						use [code value][
+						use [cond value][
 							cond: recurse 0
-							if not 'then = :current/value [
+							if any [
+								none? get-rest :current
+								not 'then = :current/value
+							] [
 								do make error! {Expected THEN.}
 							]
 							advance
@@ -36,5 +37,13 @@ requirements 'TDOP [
 			[] = tdop-parser/evaluate 'value [if 1 then 2]
 			2 = value
 		]
+	]
+
+	[
+		user-error {Expected THEN.} [tdop-parser/evaluate 'value [if 1]]
+	]
+
+	[
+		user-error {Expected an expression.} [tdop-parser/evaluate 'value [if 1 then]]
 	]
 ]

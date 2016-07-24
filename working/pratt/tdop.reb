@@ -85,7 +85,7 @@ tdop: func [
             recurse: func [
                 {Parses expression at binding power and above.}
                 rbp [integer!] {Right Binding Power.}
-                /opt {Return without error if CURRENT has no NUD.}
+                /opt {Expression is optional.}
                 /local
                 left ; Accumulation variable.
                 this ; Token whose code is executing.
@@ -103,13 +103,16 @@ tdop: func [
 
                 unset [left]
 
+                if none? token/get-rest :current [
+                    if opt [exit]
+                    token/on-end-nud :parser
+                ]
+
                 set/any 'code token/get-nud :current
+
                 if not value? 'code [
-                    either opt [
-                        exit
-                    ][
-                        do make error! rejoin [{Cannot begin an expression with } mold current]
-                    ]
+                    if opt [exit]
+                    do make error! rejoin [{Cannot begin an expression with } mold current]
                 ]
 
                 set/any 'this get/any 'current
@@ -167,6 +170,15 @@ tdop: func [
 
         token: make context [
 
+			get-lbp: func [token] [0]
+
+            ;
+            ; Default semantic functions.
+
+			get-nud: func [token][exit]
+
+			get-led: func [token][exit]
+
             ;
             ; Default tokeniser - just take next value from a block as the token.
 
@@ -184,6 +196,7 @@ tdop: func [
 
                 make token [
                     rest: (
+                        unset 'value
                         either tail? position [
                             none ; End token.
                         ][
@@ -225,9 +238,19 @@ tdop: func [
             interpret: func [
                 {Evaluate the semantic code of the token relative to the parser environment.}
                 code {Semantic code of the token.}
-                parser
+                parser {Parser environment.}
             ] [
                 do parser code
+            ]
+
+            ;
+            ; Default behaviour for trying to retrieve NUD of the end token.
+
+            on-end-nud: func [
+                {Usually an error.}
+                parser {Parser environment.}
+            ][
+                do make error! {Expected an expression.}
             ]
 
         ] bind token-spec self

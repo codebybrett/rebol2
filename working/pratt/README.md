@@ -108,4 +108,6 @@ from Pratt's article.
 Other thoughts:
 
 * Rebol block input requires recursing on a nested block.
+* TODO: How are error messages to be handled?
+* TODO: Demonstrate integration with a Rebol parse rule.
 * TODO: Experiment with tree rewriting functions. Do they have any relevance to this algorithm?

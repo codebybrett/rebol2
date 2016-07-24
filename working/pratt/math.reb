@@ -35,10 +35,6 @@ math-parser: tdop [
         /local operation
     ][
 
-        if none? :token/rest [
-            do make error! {Expected an expression.}
-        ]
-
         if any [
             word? :token/value
             number? :token/value

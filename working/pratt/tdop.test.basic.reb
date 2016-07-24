@@ -2,14 +2,14 @@ REBOL []
 
 do %tdop.reb
 
-requirements 'TDOP [
+requirements %tdop.test.basic.reb [
 
 	[{Evaluate one expression and set next position.}
 
 		tdop-parser: tdop [
+		
 			get-lbp: func [token] [0]
-			get-nud: func [token [any-type!]][
-				none? get-rest token [exit]
+			get-nud: func [token][
 				compose [(token/value)]
 			]	
 		]
@@ -25,11 +25,8 @@ requirements 'TDOP [
 		[] = tdop-parser/evaluate 'value [1]
 	]
 
-	[{Follows tokenising behaviour for tail.}
+	[{Raises error by default at tail.}
 
-		all [
-			none? tdop-parser/evaluate 'value []
-			not value? 'value
-		]
+		user-error {Expected an expression.} [tdop-parser/evaluate 'value []]
 	]
 ]
