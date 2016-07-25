@@ -1,27 +1,27 @@
 REBOL [
-	Title: {Pratt/TDOP Parsing}
-	Purpose: "Top Down Operator Precedence Parsing."
-	File: %tdop.r
-	Date: 17-Jul-2016
-	Version: 1.0.0
-	Author: "Brett Handley"
-	Web: http://www.codeconscious.com
-	License: {
+    Title: {Pratt/TDOP Parsing}
+    Purpose: "Top Down Operator Precedence Parsing."
+    File: %tdop.r
+    Date: 17-Jul-2016
+    Version: 1.0.0
+    Author: "Brett Handley"
+    Web: http://www.codeconscious.com
+    License: {
 
-		Copyright 2016 Brett Handley
+        Copyright 2016 Brett Handley
 
-		Licensed under the Apache License, Version 2.0 (the "License");
-		you may not use this file except in compliance with the License.
-		You may obtain a copy of the License at
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
 
-			http://www.apache.org/licenses/LICENSE-2.0
+            http://www.apache.org/licenses/LICENSE-2.0
 
-		Unless required by applicable law or agreed to in writing, software
-		distributed under the License is distributed on an "AS IS" BASIS,
-		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-		See the License for the specific language governing permissions and
-		limitations under the License.
-	}
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    }
 ]
 
 ; ----------------------------------------------------------------------------------------------------------------------
@@ -32,23 +32,23 @@ REBOL [
 ;
 ; References:
 ;
-;	Top Down Operator Precedence (Vaughan R. Pratt)
-;	- http://web.archive.org/web/20151223215421/http://hall.org.ua/halls/wizzard/pdf/Vaughan.Pratt.TDOP.pdf
-;	- https://tdop.github.io/ (remastered version of the above)
+;   Top Down Operator Precedence (Vaughan R. Pratt)
+;   - http://web.archive.org/web/20151223215421/http://hall.org.ua/halls/wizzard/pdf/Vaughan.Pratt.TDOP.pdf
+;   - https://tdop.github.io/ (remastered version of the above)
 ;
-;	Top-Down operator precedence parsing (Eli Bendersky)
-;	- http://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing/
+;   Top-Down operator precedence parsing (Eli Bendersky)
+;   - http://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing/
 ;
-;	Pratt Parsers: Expression Parsing Made Easy (Bob Nystrom)
-;	- http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/
+;   Pratt Parsers: Expression Parsing Made Easy (Bob Nystrom)
+;   - http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/
 ;
-;	Top Down Operator Precedence (Douglas Crockford)
-;	- http://javascript.crockford.com/tdop/tdop.html
+;   Top Down Operator Precedence (Douglas Crockford)
+;   - http://javascript.crockford.com/tdop/tdop.html
 ;   -- Note the commentary on statements in the above and at https://pythonhosted.org/PrattParse/tutorial.html#adding-statements
 ;
-;	A Monadic Pratt Parser (Matthew Manela) - see discussion of someFunction.
-;	- http://matthewmanela.com/blog/a-monadic-pratt-parser/
-;	-- (for background on function call syntax in haskell see https://www.fpcomplete.com/school/starting-with-haskell/basics-of-haskell/function-application)
+;   A Monadic Pratt Parser (Matthew Manela) - see discussion of someFunction.
+;   - http://matthewmanela.com/blog/a-monadic-pratt-parser/
+;   -- (for background on function call syntax in haskell see https://www.fpcomplete.com/school/starting-with-haskell/basics-of-haskell/function-application)
 ;
 ; ----------------------------------------------------------------------------------------------------------------------
 

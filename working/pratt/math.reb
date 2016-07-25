@@ -1,14 +1,14 @@
 REBOL [
-	Title: "Math"
-	Rights: {
-		Copyright 2016 Brett Handley
-	}
-	License: {
-		Licensed under the Apache License, Version 2.0
-		See: http://www.apache.org/licenses/LICENSE-2.0
-	}
-	Author: "Brett Handley"
-	Purpose: {Implement a simple Math function that supports precedence.}
+    Title: "Math"
+    Rights: {
+        Copyright 2016 Brett Handley
+    }
+    License: {
+        Licensed under the Apache License, Version 2.0
+        See: http://www.apache.org/licenses/LICENSE-2.0
+    }
+    Author: "Brett Handley"
+    Purpose: {Implement a simple Math function that supports precedence.}
 ]
 
 do %tdop.reb

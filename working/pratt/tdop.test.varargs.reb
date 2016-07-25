@@ -4,32 +4,32 @@ do %tdop.reb
 
 requirements %tdop.test.varargs.reb [
 
-	[{Support variadic functions.}
+    [{Support variadic functions.}
 
-		tdop-parser: tdop [
+        tdop-parser: tdop [
 
 
-			get-lbp: func [token] [
+            get-lbp: func [token] [
 
                 either '+ = :token/value [10][0]
             ]
     
 
-			get-led: func [token] [
+            get-led: func [token] [
 
                 if not ('+ = :token/value) [exit]
 
                 [
-					compose [add (left) (recurse lbp)]
+                    compose [add (left) (recurse lbp)]
                 ]
             ]
     
 
-			get-nud: func [
-				token [any-type!]
-			][
+            get-nud: func [
+                token [any-type!]
+            ][
 
-				if none? get-rest token [
+                if none? get-rest token [
                     return [[]]
                 ]
 
@@ -62,12 +62,12 @@ requirements %tdop.test.varargs.reb [
                         (:token/value)
                     ]
                 ]
-			]
-		]
+            ]
+        ]
 
-		all [
+        all [
             [] = tdop-parser/evaluate 'value [1 + a b c + 2]
-			[add add 1 INVOKE a [b c] 2] = value
-		]
-	]
+            [add add 1 INVOKE a [b c] 2] = value
+        ]
+    ]
 ]
