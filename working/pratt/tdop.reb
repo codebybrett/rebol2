@@ -170,14 +170,29 @@ tdop: func [
 
         token: make context [
 
-			get-lbp: func [token] [0]
+            ;
+            ; Default LBP property function.
+
+            get-lbp: func [
+                token
+            ] [
+                0
+            ]
 
             ;
             ; Default semantic functions.
 
-			get-nud: func [token][exit]
+            get-nud: func [
+                token
+            ][
+                exit
+            ]
 
-			get-led: func [token][exit]
+            get-led: func [
+                token
+            ][
+                exit
+            ]
 
             ;
             ; Default tokeniser - just take next value from a block as the token.
