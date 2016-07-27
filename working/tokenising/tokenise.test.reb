@@ -17,4 +17,8 @@ requirements 'tokenise [
 	[
 		[1] = tokenise/part :set-next s: [1 2] next s
 	]
+
+	[
+		[[1]] = tokenise/part :set-next s: [[1] 2] next s
+	]
 ]

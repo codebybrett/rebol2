@@ -33,7 +33,7 @@ tokenise: func [
         do range
         position: tokeniser 'token position
         if not position [break]
-        target: insert target get/any 'token
+        target: insert/only target get/any 'token
     ]    
 
     if not into [target: head target]
