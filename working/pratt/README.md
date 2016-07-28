@@ -97,13 +97,13 @@ parsing each one by calling parse b, and it returns a LISP list of the results.
 if this is not true. The /OPT refinement makes recurse optional in the sense that no error is raised
 if there is no expression.
 
-* Haskell style function calls can be made parsed. Refer to the Manella article relating to "someFunction". Here
-implemented as a varargs test. 
+* Haskell style function calls can be parsed. Refer to the Manella article relating to "someFunction". Here
+implemented in my varargs test. 
 
 > The object is to translate...
 
-* TODO: Create an example by which the semantic code is defined in terms of itself. Perhaps just an excerpt of L
-from Pratt's article.
+* Math example demonstrates translation.
+* TODO: Create an example by which the semantic code is defined in terms of itself.
 
 Other thoughts:
 
