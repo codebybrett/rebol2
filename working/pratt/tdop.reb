@@ -156,8 +156,9 @@ tdop: func [
             ; Process a single expression.
 
             unset [token-at current]
-            set/any 'current token/initialise input ; Prime the stream.
-            advance ; Load Current.
+
+            token-at: input
+            set/any 'current token/get-first input ; Prime the stream.
 
             set/any word recurse 0
 
@@ -192,6 +193,20 @@ tdop: func [
                 token
             ][
                 exit
+            ]
+
+            ;
+            ; Default first token - initialise with input.
+
+            get-first: func [
+                {Get first token.}
+                source
+            ][
+                token/get-next context [
+                    value: none
+                    rest: :source
+                    (unset 'value)
+                ]
             ]
 
             ;
@@ -231,20 +246,6 @@ tdop: func [
                 token {Represents a token.}
             ][
                 token/rest
-            ]
-
-            ;
-            ; Default beginning (head) token - initialise with input.
-
-            initialise: func [
-                {Initialise to before first token.}
-                position
-            ][
-                context [
-                    value: none
-                    rest: :position
-                    (unset 'value)
-                ]
             ]
 
             ;
