@@ -2,21 +2,36 @@ REBOL []
 
 map-token: func [
     {Create a tokeniser which evaluates a block for each token.}
-    word [word!] {Word set to token (local to body).}
-    tokeniser [function!] {Set word, returns end of token or none. Signature [word [word!] position] -> position}
+    spec [block! object!] {Block of set-word tokeniser pairs. Object spec format.}
     body [block!] {Block to evaluate.}
+    /local func-body 
 ][
 
-    word: use compose [(word)] compose [(to lit-word! word)] ; Make word local.
-    body: bind/copy body word ; Use the local.
+    if block? spec [spec: context spec]
+    words: words-of spec
+    if empty? words [do make error! {Expected at least one token definition.}]
+    use words compose/only [words: (words)] ; Give words their own context.
 
-    func compose [
-        (rejoin [{Evaluates block for token } uppercase form word {.}])
-        word [word!] {Word set to each token.}
-        position [block! string!] {Position in source.}
-    ] compose/only [
-        position: tokeniser (to lit-word! word) position
+    body: bind/copy body first words ; Use the local.
+
+    func-body: compose/deep/only [
+        unset (words)
+    ]
+
+    for i 1 length? words 1 [
+        append func-body compose/deep/only [
+            position: do (to get-word! in spec words/:i) (to lit-word! words/:i) position
+        ]
+    ]
+
+    append func-body compose/deep/only [
         set/any word (to paren! body)
         position
     ]
+
+    func compose [
+        (rejoin [{Evaluates block for token } uppercase mold words {.}])
+        word [word!] {Word set to each token.}
+        position [block! string!] {Position in source.}
+    ] func-body
 ]
