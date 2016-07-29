@@ -1,6 +1,6 @@
 REBOL []
 
-do-token: func [
+map-token: func [
     {Create a tokeniser which evaluates a block for each token.}
     word [word!] {Word set to token (local to body).}
     tokeniser [function!] {Set word, returns end of token or none. Signature [word [word!] position] -> position}
