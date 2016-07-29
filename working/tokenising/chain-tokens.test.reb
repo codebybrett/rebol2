@@ -26,7 +26,7 @@ requirements 'chain-tokens [
 		]
 	]
 
-	[ {Match two tokenisers.}
+	[ {Match one or two tokenisers.}
 		tokeniser: chain-tokens 1 2 [:set-next :set-next]
 		all [
 			none? tokeniser 'token [1] ; Success.
