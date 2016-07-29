@@ -1,7 +1,7 @@
 REBOL []
 
 foreach-token: func [
-    {Create a tokeniser which evaluates a block for each token.}
+    {Evaluates a block for each token in a series.}
     word [word!] {Word set to token (local to body).}
     tokeniser [function!] {Set word, returns end of token or none. Signature [word [word!] position] -> position}
     position
