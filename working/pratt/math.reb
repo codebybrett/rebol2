@@ -8,107 +8,101 @@ REBOL [
         See: http://www.apache.org/licenses/LICENSE-2.0
     }
     Author: "Brett Handley"
-    Purpose: {Implement a simple Math function that supports precedence.}
+    Purpose: {Implement a simple Math function that supports precedence using a Pratt parser.}
 ]
-
-do %tdop.reb
-
-math-parser: tdop [
-
-    get-lbp: func [
-        {Set Left Binding Power of token. Defines precedence.}
-        token {Represents a token.}
-    ][
-        any [
-            select [
-                + 10 - 10
-                * 20 / 20
-                ** 30
-            ] token/value
-            0
-        ]
-    ]
-
-    get-nud: func [
-        {Obtains the NUD code of the current token. E.g. Define Values and Prefix tokens.}
-        token {Represents a token.}
-        /local operation
-    ][
-
-        operation: case [
-
-            '- = :token/value [
-                [negate (recurse 100)]
-            ]
-
-            '+ = token/value [
-                [(recurse 100)]
-            ]
-
-            any [
-                number? :token/value
-                word? :token/value
-                path? :token/value
-            ] [
-                [(:token/value)]
-            ]
-
-            paren? :token/value [
-                [(to paren! math/only :token/value)]
-            ]
-
-            block? :token/value [
-                [(to paren! :token/value)]
-            ]
-        ]
-
-        if not operation [
-            do make error! {Expected argument or unary operators + or -.}
-        ]
-        
-        operation
-    ]
-
-    get-led: func [
-        {Obtains the LED code of the current token (has LEFT argument) E.g Define Infix and Postfix tokens.}
-        token {Represents a token.}
-        /local operation
-    ][
-        any [
-            select [
-                + [add (left) (recurse lbp)]
-                - [subtract (left) (recurse lbp)]
-                * [multiply (left) (recurse lbp)]
-                / [divide (left) (recurse lbp)]
-                ** [power (left) (recurse lbp - 1)]
-            ] :token/value
-            ()
-        ]
-    ]
-
-    interpret: func [
-        {Evaluate the semantic code of the token relative to the parser environment.}
-        code
-        parser
-    ] [
-
-        ; The dialect of COMPOSE has been chosen to encode the semantic code of the tokens.
-        ; Ideally only parens should be bound since it is only parens that refer to the parser environment.
-
-        compose parser code
-    ]
-]
-
 
 math: funct [
     {Evaluate math expression with standard precedence.}
     expression [block! paren!]
     /only {Translate the expression only.}
 ] [
-    result: none
-    position: math-parser/evaluate 'result expression
-    if not tail? position [
-        do make error! {Expected a single expression.}
+
+    recurse: func [
+        {Parses expression at binding power and above.}
+        rbp [integer!] {Right Binding Power.}
+        /opt {Expression is optional.}
+        /local
+        left ; Accumulation variable.
+        this ; Token whose code is executing.
+        code ; Code of the token to evaluate.
+        lbp ; Left binding power of token.
+    ][
+
+        unset [left]
+
+        if tail? expression [
+            make error! {Expected an expression.}
+        ]
+
+        this: first expression
+
+        code: case [
+
+            '- = :this [
+                [negate (recurse 100)]
+            ]
+
+            '+ = this [
+                [(recurse 100)]
+            ]
+
+            any [
+                number? :this
+                word? :this
+                path? :this
+            ] [
+                [(:this)]
+            ]
+
+            paren? :this [
+                [(to paren! math/only :this)]
+            ]
+
+            block? :this [
+                [(to paren! :this)]
+            ]
+        ]
+
+        if none? code [
+            make error! {Expected argument or unary operators + or -.}
+        ]
+
+        expression: next expression
+
+        left: compose code
+
+        ; Process any remaining expression tokens.
+        while [
+            lbp: any [
+                select [+ 10 - 10 * 20 / 20 ** 30] expression/1
+                0
+            ]
+            lbp > rbp
+        ] [
+
+            this: first expression
+
+            code: select [
+                + [add (left) (recurse lbp)]
+                - [subtract (left) (recurse lbp)]
+                * [multiply (left) (recurse lbp)]
+                / [divide (left) (recurse lbp)]
+                ** [power (left) (recurse lbp - 1)]
+            ] :this
+
+            expression: next expression
+
+            left: compose code
+        ]
+
+        RETURN left
     ]
+
+    result: recurse 0
+
+    if not tail? expression [
+        make error! {Expected a single expression.}
+    ]
+
     either only [result][do result]
 ]
