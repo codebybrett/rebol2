@@ -21,7 +21,11 @@ requirements 'math [
     ]
 
     [
-        user-error {Expected number.} [math [{x}]]
+        user-error {Expected an expression.} [math [1 - +]]
+    ]
+
+    [
+        user-error {Expected argument or unary operators + or -.} [math [{x}]]
     ]
 
     [

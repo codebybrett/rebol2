@@ -35,31 +35,35 @@ math-parser: tdop [
         /local operation
     ][
 
-        if any [
-            word? :token/value
-            number? :token/value
-            path? :token/value
-        ] [
-           return [(:token/value)]
-        ]
+        operation: case [
 
-        if paren? :token/value [
-            use [value][ 
-               return [(to paren! math/only :token/value)]
+            '- = :token/value [
+                [negate (recurse 100)]
+            ]
+
+            '+ = token/value [
+                [(recurse 100)]
+            ]
+
+            any [
+                number? :token/value
+                word? :token/value
+                path? :token/value
+            ] [
+                [(:token/value)]
+            ]
+
+            paren? :token/value [
+                [(to paren! math/only :token/value)]
+            ]
+
+            block? :token/value [
+                [(to paren! :token/value)]
             ]
         ]
 
-        if block? :token/value [
-            return [(to paren! :token/value)]
-        ]
-
-        operation: select [
-            + [(recurse 100)]
-            - [negate (recurse 100)]
-        ] :token/value
-
         if not operation [
-            do make error! {Expected number.}
+            do make error! {Expected argument or unary operators + or -.}
         ]
         
         operation
