@@ -36,11 +36,19 @@ REBOL [
 ;   - http://web.archive.org/web/20151223215421/http://hall.org.ua/halls/wizzard/pdf/Vaughan.Pratt.TDOP.pdf
 ;   - https://tdop.github.io/ (remastered version of the above)
 ;
+;   CGOL - An algebraic notation for MACLISP users (Vaughan R. Pratt)
+;   - https://people.eecs.berkeley.edu/~fateman/cgol/cgol.1/pratt.memo
+;   -- Contains additional explanations related to the algorithm.
+;
 ;   Top-Down operator precedence parsing (Eli Bendersky)
 ;   - http://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing/
 ;
 ;   Pratt Parsers: Expression Parsing Made Easy (Bob Nystrom)
 ;   - http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/
+;
+;   Top Down Operator Precedence Parsing in Go (Cristian Dima)
+;   - http://www.cristiandima.com/top-down-operator-precedence-parsing-in-go/
+;   -- Implementing a small dynamic language
 ;
 ;   Top Down Operator Precedence (Douglas Crockford)
 ;   - http://javascript.crockford.com/tdop/tdop.html
