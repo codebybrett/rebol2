@@ -75,6 +75,7 @@ tdop: func [
             {Evaluate expression and return end position.}
             word [word!] {Word set to the value of the evaluated expression.}
             input {Input to parse.}
+            /first {Evaluation of the first token ends the expression (no lookahead for infix or postfix).}
             /local
             current ; Represents token.
             advance
@@ -93,6 +94,7 @@ tdop: func [
             recurse: func [
                 {Parses expression at binding power and above.}
                 rbp [integer!] {Right Binding Power.}
+                /first {Evaluation of the first token ends the expression (no lookahead for infix or postfix).}
                 /opt {Expression is optional.}
                 /local
                 left ; Accumulation variable.
@@ -129,7 +131,11 @@ tdop: func [
                 set/any 'left token/interpret code :parser
                 ; Position could be advanced by code.
 
-                ; Process any remaining expression tokens.
+                if first [
+                    RETURN get/any 'left
+                ]
+
+                ; Process infix or postfix tokens (i.e. those taking a left argument).
                 while [
                     lbp: either any [
                         not value? 'current
@@ -168,7 +174,7 @@ tdop: func [
             token-at: input
             set/any 'current token/get-first input ; Prime the stream.
 
-            set/any word recurse 0
+            set/any word either first [recurse/first 0] [recurse 0]
 
             token-at
         ]
