@@ -33,8 +33,8 @@ REBOL [
 ; References:
 ;
 ;   Top Down Operator Precedence (Vaughan R. Pratt)
+;   - https://tdop.github.io/ (remastered version)
 ;   - http://web.archive.org/web/20151223215421/http://hall.org.ua/halls/wizzard/pdf/Vaughan.Pratt.TDOP.pdf
-;   - https://tdop.github.io/ (remastered version of the above)
 ;
 ;   CGOL - An algebraic notation for MACLISP users (Vaughan R. Pratt)
 ;   - https://people.eecs.berkeley.edu/~fateman/cgol/cgol.1/pratt.memo
