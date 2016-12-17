@@ -31,8 +31,13 @@ do-math: funct [
         case [
 
             none? :token [
-                func [][
-                    make error! {Expected an expression.}
+                func [/local result][
+                    result: compose/only [
+                        error {Expected an expression.}
+                        position (position)
+                    ]
+                    position: none
+                    result
                 ]
             ]
 
@@ -86,7 +91,9 @@ do-math: funct [
         /local fn rbp lbp
     ][
     
-        if none? :token [return none]
+        if none? :token [
+            return none
+        ]
 
         fn: case [
 
@@ -143,19 +150,16 @@ do-math: funct [
         /local left fn token
     ][
         unset 'left
-        token: if not tail? position [position/1] ; none! indicates end token.
+        token: position/1 ; none! indicates end token.
         fn: load-nud bp token
         until [
             position: next position ; Really part of token code.
             set/any 'left fn get/any 'left
-            token: if not tail? position [position/1] ; none! indicates end token.
+            if none? position [break] ; Invalid position indicates parsing error.
+            token: position/1 ; none! indicates end token.
             none? fn: load-led bp token
         ]
         get/any 'left
-    ]
-
-    if tail? position [
-        return none
     ]
 
     set/any word parse-math 0
@@ -167,10 +171,11 @@ math: funct [
     {Evaluate math expression with standard precedence.}
     expression [block! paren!]
     /only {Translate the expression only.}
+    /local result
 ] [
     position: do-math 'result expression
     if none? position [
-        make error! {Expected an expression.}
+        make error! result/error
     ]
     if not tail? position [
         make error! {Expected a single expression.}
