@@ -40,6 +40,10 @@ REBOL [
 ;   - https://people.eecs.berkeley.edu/~fateman/cgol/cgol.1/pratt.memo
 ;   -- Contains additional explanations related to the algorithm.
 ;
+;   A number of good articles by the one author on Pratt (Andy Chu)
+;   - http://www.oilshell.org/blog/2016/11/03.html
+;   -- See the blog for the other articles, in particular comments on other articles I've referenced here.
+;
 ;   Top-Down operator precedence parsing (Eli Bendersky)
 ;   - http://eli.thegreenplace.net/2010/01/02/top-down-operator-precedence-parsing/
 ;
