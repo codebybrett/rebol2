@@ -25,7 +25,7 @@ requirements 'math [
     ]
 
     [
-        user-error {Expected argument or unary operators + or -.} [math [{x}]]
+        user-error {"test" is not an argument or unary operator.} [math ["test"]]
     ]
 
     [

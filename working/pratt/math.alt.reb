@@ -44,6 +44,7 @@ do-math: funct [
             '- = :token [
                 rbp: 100
                 func [] [
+                    position: next position
                     compose [negate (parse-math rbp)]
                 ]
             ]
@@ -51,6 +52,7 @@ do-math: funct [
             '+ = token [
                 rbp: 100
                 func [] [
+                    position: next position
                     compose [(parse-math rbp)]
                 ]
             ]
@@ -61,25 +63,33 @@ do-math: funct [
                 path? :token
             ] [
                 func [] [
+                    position: next position
                     compose [(:token)]
                 ]
             ]
 
             paren? :token [
                 func [] [
+                    position: next position
                     compose [(to paren! math/only :token)]
                 ]
             ]
 
             block? :token [
                 func [] [
+                    position: next position
                     compose [(to paren! :token)]
                 ]
             ]
 
             true [
                 func [] [
-                    make error! {Expected argument or unary operators + or -.}
+                    result: compose/only [
+                        error (rejoin [mold :token { is not an argument or unary operator.}])
+                        position (position)
+                    ]
+                    position: none
+                    result
                 ]
             ]
         ]
@@ -100,6 +110,7 @@ do-math: funct [
             '+ = :token [
                 lbp: rbp: 10
                 func [left] [
+                    position: next position
                     compose [add (left) (parse-math rbp)]
                 ]
             ]
@@ -107,6 +118,7 @@ do-math: funct [
             '- = :token [
                 lbp: rbp: 10
                 func [left] [
+                    position: next position
                     compose [subtract (left) (parse-math rbp)]
                 ]
             ]
@@ -114,6 +126,7 @@ do-math: funct [
             '* = :token [
                 lbp: rbp: 20
                 func [left] [
+                    position: next position
                     compose [multiply (left) (parse-math rbp)]
                 ]
             ]
@@ -121,6 +134,7 @@ do-math: funct [
             :token = first [/] [
                 lbp: rbp: 20
                 func [left] [
+                    position: next position
                     compose [divide (left) (parse-math rbp)]
                 ]
             ]
@@ -129,6 +143,7 @@ do-math: funct [
                 lbp: 30
                 rbp: lbp - 1
                 func [left] [
+                    position: next position
                     compose [power (left) (parse-math rbp)]
                 ]
             ]
@@ -153,7 +168,6 @@ do-math: funct [
         token: position/1 ; none! indicates end token.
         fn: load-nud bp token
         until [
-            position: next position ; Really part of token code.
             set/any 'left fn get/any 'left
             if none? position [break] ; Invalid position indicates parsing error.
             token: position/1 ; none! indicates end token.
