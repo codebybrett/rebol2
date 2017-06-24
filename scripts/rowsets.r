@@ -359,6 +359,8 @@ spaces will be converted to hypens).}
 			result
 		]
 
+		is-rebol2: (system/version < 2.100.0)
+
 		require-rowset: funct [
 			[catch! throw!]
 			name source
@@ -386,7 +388,7 @@ spaces will be converted to hypens).}
 			; Capture new rowset user variable if any.
 			if parse body [issue! to end][
 				new.name: first body
-				if script-environment? [rebol2] [new.name: form new.name]
+				if is-rebol2 [new.name: form new.name]
 				new.name: to word! new.name
 				remove body
 			]			
