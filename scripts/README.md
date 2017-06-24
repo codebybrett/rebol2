@@ -21,9 +21,9 @@ in your current or BASE folder it will look for it in MASTER.
 
 MASTER is currently the folder in which this readme is located.
 
-If you want your base to be a webservice use
+If you want your base to be a webservice use:
 
-    DO/ARGS %env.reb http://.../ ; Path to base folder.
+    DO/ARGS %env.r http://.../ ; Path to base folder.
 
 SCRIPT-NEEDS declares the required files for a script and internally uses
 ENV to find and DO those files.
