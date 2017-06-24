@@ -11,6 +11,11 @@ Subsequently as required:
 
     DO <script-file>
 
+Example of running scripts from GitHub:
+
+    do https://raw.githubusercontent.com/codebybrett/rebol2/master/scripts/env.r
+    do https://raw.githubusercontent.com/codebybrett/rebol2/master/scripts/rowsets.r
+
 ### env, script-needs ###
 
 ENV is located in your BASE folder. ENV will record what that folder
