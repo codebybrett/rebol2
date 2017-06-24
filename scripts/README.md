@@ -14,7 +14,7 @@ Subsequently as required:
 Example of running scripts from GitHub:
 
     do https://raw.githubusercontent.com/codebybrett/rebol2/master/scripts/env.r
-    do https://raw.githubusercontent.com/codebybrett/rebol2/master/scripts/rowsets.r
+    script-needs [%rowsets.r]
 
 ### env, script-needs ###
 
