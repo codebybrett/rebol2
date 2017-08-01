@@ -206,7 +206,7 @@ parsing-deep: func [
 	pattern [block!] {Parse rule.}
 	/all {Match every occurrence of pattern, in effect all the input. Default is to stop after first match.}
 	/extern words [block! logic! none!] {These words are not local. TRUE = All words are not local.}
-	/contains {Test if the first input element contains the pattern.}
+	/contains {The first element contains the pattern.}
 	/skip {Rule for next position.} next-position {A parse rule. Default is SKIP.}
 	/recurse {Test before recursion.} recursion-guard {A parse rule - must succeed for recursion. Default is to enter any-block!]}
 	/local set-words initialise rule recursion
