@@ -13,7 +13,7 @@ REBOL [
 ]
 
 script-needs [
-    %requirements.reb
+    %requirements.r
     %../rowsets.r
 ]
 
