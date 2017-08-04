@@ -123,6 +123,7 @@ comment {
 		* position? - Returns the current row position for the specified rowsource (specify the rowsource by name).
 		* row? - The current row reference of the named row source.
 		* sourcetype? - The type of the named row source.
+		* value? - The row object itself.
 		* words? - The words allocated to the row source.
 
 	Notes:
@@ -431,7 +432,7 @@ spaces will be converted to hypens).}
 
 			; Bind special functions.
 			functions: collect [
-				foreach word [position row sourcetype words] [
+				foreach word [position row sourcetype value words] [
 					keep to set-word! join form word "?"
 					keep compose/deep [
 						funct [[catch] 'name [word!]] [
@@ -495,6 +496,14 @@ spaces will be converted to hypens).}
 					positions (indicies length? source/rows)
 				]
 			][set unset]
+
+			from-records: funct [
+				{Returns a rowset query source.}
+				'name [word! issue!] {A name for the rowset.}
+				source [block!] {E.g.: [[i w] 1 a 2 b].}
+			] [
+				from-series :name source/1 next source
+			]
 
 			from-series: funct/extern [
 				{Returns a rowset query source.}
