@@ -1,5 +1,5 @@
 REBOL [
-    Title: "do-next - Tests"
+    Title: "binding - Tests"
     Version: 1.0.0
     Rights: {
         Copyright 2017 Brett Handley
