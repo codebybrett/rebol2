@@ -17,7 +17,7 @@ script-needs [
     %../separators.r
 ]
 
-requirements 'separators.r [
+requirements %separators.r [
 
     [
         [x x] = bookend 'x []

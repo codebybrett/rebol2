@@ -17,7 +17,7 @@ script-needs [
     %../row-formatting.r
 ]
 
-requirements 'row-formatting.r [
+requirements %row-formatting.r [
     [
         {} = excel-text tab []
     ]
