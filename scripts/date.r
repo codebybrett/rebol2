@@ -328,7 +328,7 @@ date: binding/custom/object [parser] [
 	]
 
 	rewrite: func [
-		{Rewrite dates within text.}
+		{Rewrite dates within text (needs search from rewrite.r).}
 		text [any-string!]
 		format [function! word!] {Date formatting function, or word defined in date/as}
 		/local p1 p2
