@@ -1,0 +1,65 @@
+REBOL [
+    Title: "row-formatting - Tests"
+    Version: 1.0.0
+    Rights: {
+        Copyright 2017 Brett Handley
+    }
+    License: {
+        Licensed under the Apache License, Version 2.0
+        See: http://www.apache.org/licenses/LICENSE-2.0
+    }
+    Author: "Brett Handley"
+    Purpose: {Testing.}
+]
+
+script-needs [
+    %requirements.r
+    %../row-formatting.r
+]
+
+requirements 'row-formatting.r [
+    [
+        {} = excel-text tab []
+    ]
+    [
+        {^/} = excel-text tab [[]]
+    ]
+    [
+        {x^/} = excel-text tab [[x]]
+    ]
+    [
+        {x^/} = excel-text tab [[x]]
+    ]
+    [
+        "test^/" = excel-text tab [["test"]]
+    ]
+    [
+        "test^-x^/" = excel-text tab [["test" x]]
+    ]
+    [
+        "x^/y^/" = excel-text tab [[x] [y]]
+    ]
+    [
+        equal? {none^-
+word^-x
+string^-test
+date^-2017-08-01
+}
+        excel-text tab compose/deep [
+            [none (none)]
+            [word x]
+            [string "test"]
+            [date 1-Aug-2017]
+        ]
+    ]
+
+    [
+        equal? "insert into test values (#2017-08-01#, 1, 'x');"
+        odbc-sql/insert "test" [1-Aug-2017 1 x]
+    ]
+
+    [
+        equal? "insert into test values ('2017-08-01', 1, 'x');"
+        sqlite-sql/insert "test" [1-Aug-2017 1 x]
+    ]
+]
