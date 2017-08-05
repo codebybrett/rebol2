@@ -19,25 +19,25 @@ script-needs [
 
 requirements %row-formatting.r [
     [
-        {} = excel-text tab []
+        equal? {} excel-text tab []
     ]
     [
-        {^/} = excel-text tab [[]]
+        equal? {^/} excel-text tab [[]]
     ]
     [
-        {x^/} = excel-text tab [[x]]
+        equal? {x^/} excel-text tab [[x]]
     ]
     [
-        {x^/} = excel-text tab [[x]]
+        equal? {x^/} excel-text tab [[x]]
     ]
     [
-        "test^/" = excel-text tab [["test"]]
+        equal? "test^/" excel-text tab [["test"]]
     ]
     [
-        "test^-x^/" = excel-text tab [["test" x]]
+        equal? "test^-x^/" excel-text tab [["test" x]]
     ]
     [
-        "x^/y^/" = excel-text tab [[x] [y]]
+        equal? "x^/y^/" excel-text tab [[x] [y]]
     ]
     [
         equal? {none^-
