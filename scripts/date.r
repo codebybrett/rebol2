@@ -133,8 +133,7 @@ date: binding/custom/object [parser] [
 			zone [time!]
 			date [date!]
 		] [
-			if none? date/time [date/time: 0:00] ; Avoid bug.
-			new: date - date/zone + zone
+			new: utc date + zone
 			new/zone: zone
 			new
 		]
