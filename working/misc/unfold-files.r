@@ -1,16 +1,15 @@
 REBOL []
 
-; Playing around with a simpler implementation of read-below.r
-; The idea was simply to reuse a single series, growing it to the final output.
+; Playing around with a simple implementations of recursive reads.
+; The idea here was to reuse a single series, growing it to the final output.
 ; Found out the idea is called unfold.
 
-
-children-of: funct [
-    {Return child nodes of node f for processing.}
+files-of: funct [
+    {Return child file nodes of item for processing.}
     item
 ][
 
-    if not equal? #"/" last f [
+    if not equal? #"/" last item [
         return make block! []
     ]
 
@@ -24,16 +23,17 @@ children-of: funct [
 
 ; Concept of unfold: https://en.wikipedia.org/wiki/Anamorphism#Example
 
-unfold: func [
+unfold-files: func [
     queue
 ][
 
     forall queue [
-        insert next queue children-of first queue
+        insert next queue files-of first queue
     ]
 
     queue
 ]
 
 HALT
-remove unfold [%./]
+
+unfold-files [%./]
