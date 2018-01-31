@@ -21,7 +21,7 @@ REBOL [
 ;;
 
 read-deep-seq: funct [
-    {Iterative read deep.}
+    {Process next file in queue, adding next steps to queue.}
     queue [block!]
 ][
     item: take queue
@@ -33,34 +33,129 @@ read-deep-seq: funct [
     item
 ]
 
-;; read-deep provide convenience over read-deep-seq.
+;; read-deep provides convenience over read-deep-seq.
 ;;
 
 read-deep: funct [
-    {Return files and folders using recursive read strategy.}
-    root [file! url!]
+    {Read file or url including subfolders.}
+    root [file! url! block!]
     /full {Includes root path and retains full paths instead returning relative paths.}
     /strategy {Allows Queue building to be overridden.}
     take [function!] {TAKE next item from queue, building the queue as necessary.}
 ][
+    take: default [:read-deep-seq]
+
     result: make block! []
 
-    unless strategy [take: :read-deep-seq]
-
-    queue: reduce [root]
+    queue: compose [(root)]
 
     while [not tail? queue][
         path: take queue
-        append result path
+        if value? 'path [append result :path]
     ]
 
     unless full [
         remove result ; No need for root in result.
         len: length? root
-        foreach path result [
-            remove/part path len
+        for i 1 length? result 1 [
+            ; Strip off root path from locked paths.
+            poke result i copy skip result/:i len
         ]
     ]
 
-    new-line/all result true
+    result
+]
+
+;; Builds a tree suitable for adding attributes.
+;; Node data contains the read argument and an item returned from the read.
+
+grow-read-tree: funct [
+    {Grow next tree node in queue, where each node represents a file or folder.}
+    queue [block!]
+] [
+
+    node: take queue
+
+    ; Take node as input.
+    data: node/1
+    source: either %./ = data/1 [data/2][join data/1 data/2]
+
+    ; Add any node children.
+    if equal? #"/" last source [
+
+        ; Add node children.
+        child-nodes: map-each x read source [
+            data: reduce [source x]
+            reduce [data] ; New node.
+        ]
+        append node child-nodes
+        new-line/all next node true
+
+        ; Process children next.
+        insert queue child-nodes
+    ]
+
+    node ; return current work item.
+]
+
+;; Builds a concise tree suitable for displaying structure.
+;;
+
+grow-file-tree: funct [
+    {Grow next tree node in queue, where each node represents a file or folder.}
+    queue [block!]
+] [
+
+    node: take queue
+
+    ; Take node as input.
+    data: node/1
+    if not equal? #"/" last data/2 [
+        fail ["Expected queue of folders only."]
+    ]
+
+    source: either %./ = data/1 [data/2][join data/1 data/2]
+
+    ; Finalise folder data.
+    poke node 1 data/2
+
+    ; Add node children.
+    child-nodes: map-each x read source [
+        either equal? #"/" last x [
+            data: reduce [source x] ; Node data.
+            child: reduce [data] ; Child node.
+            insert/only queue child ; Only folder nodes are queued.
+        ][
+            child: x
+        ]
+        child
+    ]
+    append node child-nodes
+    new-line/all next node true
+
+    node ; return current work item.
+]
+
+;; Build a folder tree.
+;;
+
+folder-tree: funct [
+    {Return a folder tree from a deep read.}
+    root [file! url!] "Seed path."
+    /full {Returns a tree suitable for attributes.}
+][
+
+    take: either full [:grow-read-tree] [:grow-file-tree]
+
+    tree: reduce [
+        reduce [%./ root]
+    ]
+    
+    queue: reduce [tree]
+
+    while [not tail? queue][
+        take queue
+    ]
+
+    tree
 ]
