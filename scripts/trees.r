@@ -23,23 +23,24 @@ REBOL [
 ;   it can be represented by the value type used as the node.
 
 
+tree-seq: funct [
+    {Iterative top down tree visit.}
+    queue [block!] {Represents the seqence. Seed with root node.}
+][
+    node: take queue
+    if block? node [insert queue next node]
+    node
+]
+
+
 visit-tree: funct [
     {Visit each tree node evaluating it.}
     root [block!] {[data child1 child2 ...]}
     eval [block! function!] {Block or function to evaluate each NODE.}
     /strategy {Allows sequence to visit tree to be overridden.}
-    sequence [function!] {TAKE item from queue, building the queue as necessary.}
+    take [function!] {TAKE item from queue, building the queue as necessary.}
 ][
-    unless strategy [
-        sequence: funct [
-            {Iterative top down tree visit.}
-            queue [block!] {Represents the seqence. Seed with node.}
-        ][
-            node: take queue
-            if block? node [insert queue next node]
-            node
-        ]
-    ]
+    unless strategy [take: :tree-seq]
 
     if block? :eval [
         eval: func [node] eval
@@ -48,7 +49,7 @@ visit-tree: funct [
     queue: reduce [root]
 
     while [not tail? queue][
-        eval sequence queue
+        eval take queue
     ]
 
     root
