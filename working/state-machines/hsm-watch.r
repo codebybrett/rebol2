@@ -13,7 +13,7 @@ cmt: funct [value][print compose [{  ;} (value)]]
 state: context [
     name: none
     super: none
-    handler: none
+    doEvent: none
 ]
 
 hsm: context [
@@ -28,13 +28,17 @@ msg: funct [
     hsm value
 ][]
 
+make-state: does [
+    make state []
+]
+
 StateCtor: funct [
     {HSM Constructor.}
     me name super handler
 ][
     me/name: name
     me/super: super
-    me/handler: :handler
+    me/doEvent: :handler
  ]
 
 ; ----------------------------------------------------------------
@@ -211,7 +215,7 @@ doStateEvent: funct [
     me ctx msg
 ][
     cmt [{Event:} ctx/name me/name :msg]
-    me/handler :ctx :msg
+    me/doEvent :ctx :msg
 ]
 
 ; ----------------------------------------------------------------
@@ -260,6 +264,31 @@ transition-to: funct [
 ; -----------------------------------------------
 ; Watch definition
 ; -----------------------------------------------
+
+make-watch: does [
+    make hsm [
+
+        ; HSM Superclass
+        super: none
+
+        ; properties.
+        tsec: tmin: thour: dday: dmonth: none
+
+        ; States.
+        timekeeping: make-state
+        time: make-state
+        date: make-state
+
+        setting: make-state
+
+        hour: make-state
+        minute: make-state
+        day: make-state
+        month: make-state
+
+        tkeepingHist: none
+    ]
+]
 
 WatchCtor: funct [me][
 
@@ -311,7 +340,7 @@ Watch_timekeeping: funct [me event][
             transition-into me either me/tkeepingHist [me/tkeepingHist][me/time]
             return none
         ]
-        #set_evt [
+        #display_evt [
             transition-to me me/setting [0] ; block simulates static variable.
             return none
         ]
@@ -334,7 +363,7 @@ Watch_time: funct [me event][
             probe now/time
             return none
         ]
-        #set_evt [
+        #display_evt [
             transition-to me me/date [0] ; block simulates static variable.
             return none
         ]
@@ -348,7 +377,7 @@ Watch_date: funct [me event][
             probe now/date
             return none
         ]
-        #set_evt [
+        #display_evt [
             transition-to me me/time [0] ; block simulates static variable.
             return none
         ]
@@ -368,14 +397,14 @@ Watch_setting: funct [me event][
 
 Watch_hour: funct [me event][
     switch event [
-        #mode_evt [
+        #modify_evt [
             do bind [
                 thour: thour + 1
                 ?? thour
             ] me
             return none
         ]
-        #set_evt [
+        #display_evt [
             transition-to me me/minute [0] ; block simulates static variable.
             return none
         ]
@@ -385,14 +414,14 @@ Watch_hour: funct [me event][
 
 Watch_minute: funct [me event][
     switch event [
-        #mode_evt [
+        #modify_evt [
             do bind [
                 tmin: tmin + 1
                 ?? tmin
             ] me
             return none
         ]
-        #set_evt [
+        #display_evt [
             transition-to me me/day [0] ; block simulates static variable.
             return none
         ]
@@ -402,7 +431,7 @@ Watch_minute: funct [me event][
 
 Watch_day: funct [me event][
     switch event [
-        #set_evt [
+        #display_evt [
             transition-to me me/month [0] ; block simulates static variable.
             return none
         ]
@@ -412,7 +441,7 @@ Watch_day: funct [me event][
 
 Watch_month: funct [me event][
     switch event [
-        #set_evt [
+        #display_evt [
             transition-to me me/timekeeping [0] ; block simulates static variable.
             return none
         ]
@@ -420,43 +449,39 @@ Watch_month: funct [me event][
     event ; Unhandled event.
 ]
 
-make-state: does [make state []]
+; Create and test watch.
 
-watch: make hsm [
-
-    ; HSM Superclass
-    super: none
-
-    ; properties.
-    tsec: tmin: thour: dday: dmonth: none
-
-    ; States.
-    timekeeping: make-state
-    time: make-state
-    date: make-state
-
-    setting: make-state
-
-    hour: make-state
-    minute: make-state
-    day: make-state
-    month: make-state
-
-    tkeepingHist: none
-]
-
+watch: make-watch
 WatchCtor watch
+
 HsmOnStart watch
 
 ;; Run watch...
-HsmOnEvent watch #mode_evt
-HsmOnEvent watch #set_evt
-HsmOnEvent watch #mode_evt
-HsmOnEvent watch #mode_evt
-HsmOnEvent watch #set_evt
-HsmOnEvent watch #set_evt
-HsmOnEvent watch #set_evt
-HsmOnEvent watch #set_evt
+assert ["hour" = watch/current-state/name]
 
+HsmOnEvent watch #modify_evt
+HsmOnEvent watch #modify_evt
+assert ["hour" = watch/current-state/name]
+assert [2 = watch/thour]
+
+HsmOnEvent watch #display_evt
+assert ["minute" = watch/current-state/name]
+
+HsmOnEvent watch #display_evt
+assert ["day" = watch/current-state/name]
+
+HsmOnEvent watch #display_evt
+assert ["month" = watch/current-state/name]
+
+HsmOnEvent watch #display_evt
+HsmOnEvent watch #tick_evt
+assert ["time" = watch/current-state/name]
+
+HsmOnEvent watch #display_evt
+HsmOnEvent watch #tick_evt
+assert ["date" = watch/current-state/name]
+
+HsmOnEvent watch #display_evt
+assert ["time" = watch/current-state/name]
 
 HALT
