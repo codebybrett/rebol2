@@ -449,15 +449,14 @@ Watch_month: funct [me event][
     event ; Unhandled event.
 ]
 
-; Create and test watch.
+;; Create and start watch.
 
 watch: make-watch
 WatchCtor watch
-
 HsmOnStart watch
-
-;; Run watch...
 assert ["hour" = watch/current-state/name]
+
+;; Run watch with events.
 
 HsmOnEvent watch #modify_evt
 HsmOnEvent watch #modify_evt
