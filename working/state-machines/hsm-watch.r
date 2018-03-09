@@ -19,7 +19,7 @@ state: context [
 hsm: context [
     name: none
     current-state: none
-    target-state: none ;; Was next-state
+    target-state: none ;; Transition target.
     top-state: none
 ]
 
