@@ -28,13 +28,13 @@ tree-seq: funct [
     queue [block!] {Represents the seqence. Seed with root node.}
 ][
     node: take queue
-    if block? node [insert queue next node]
+    if block? :node [insert queue next node]
     node
 ]
 
 
 visit-tree: funct [
-    {Visit each tree node evaluating it.}
+    {Process each tree.}
     root [block!] {[data child1 child2 ...]}
     eval [block! function!] {Block or function to evaluate each NODE.}
     /strategy {Allows sequence to visit tree to be overridden.}
@@ -60,7 +60,7 @@ pretty-tree: funct [
     tree [block!] {[data child1 child2 ...]}
 ][
     visit-tree tree [
-        if block? node [
+        if block? :node [
             new-line/all next node true
         ]
     ]
