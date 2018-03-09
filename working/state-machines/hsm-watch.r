@@ -189,6 +189,28 @@ HsmFinaliseTransition: funct [
     cmt [{State} me/current-state/name {ready.}]
 ]
 
+HsmFindState: funct [
+    {Return the number of levels the target is above current or none.}
+    me target-state
+][
+    levels: 0
+
+    ;; Find target in hierarchy.
+
+    st: me/current-state
+    while [st][
+
+        if same? st target-state [
+            RETURN levels
+        ]
+
+        levels: levels + 1
+        st: st/super
+    ]
+
+    none ; Not found.
+]
+
 HsmEnterSubstates: funct [
     {Enter states on path from current.}
     me target-state entryPath
@@ -454,6 +476,7 @@ Watch_month: funct [me event][
 watch: make-watch
 WatchCtor watch
 HsmOnStart watch
+assert [HsmFindState watch watch/setting] ; Check superstate.
 assert ["hour" = watch/current-state/name]
 
 ;; Run watch with events.
@@ -474,6 +497,8 @@ assert ["month" = watch/current-state/name]
 
 HsmOnEvent watch #display_evt
 HsmOnEvent watch #tick_evt
+assert [HsmFindState watch watch/timekeeping] ; Check superstate.
+assert [not HsmFindState watch watch/setting]
 assert ["time" = watch/current-state/name]
 
 HsmOnEvent watch #display_evt
