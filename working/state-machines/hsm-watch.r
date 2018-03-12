@@ -21,6 +21,8 @@ hsm: context [
     current-state: none
     target-state: none ;; Transition target.
     top-state: none
+    state-path: none ;; Static buffer var.
+    event: none ;; To allow assertion into transition-into.
 ]
 
 msg: funct [
@@ -58,19 +60,15 @@ HsmOnStart: funct [
     {Enter and start the top state.}
     me
 ][
-    path-buffer: copy []
-
-    setCurrentState me me/top-state
+    me/current-state: me/top-state
     doStateEvent me/current-state me #enter-action
-    dispatchInitial me path-buffer
+    startState me
 ]
 
 HsmOnEvent: funct [
     {Dispatch event to relevant state.}
     me msg
 ][
-    path-buffer: copy []
-
     ;; Move through state hierarchy until event is handled.
 
     st: me/current-state
@@ -88,12 +86,14 @@ HsmOnEvent: funct [
  
             if me/target-state [
 
-                ;; The state started a transition in response to the event.
+                ;; The state is part way through a transition in response to the event.
                 ;; Old states below the least common ancestor have already been exited.
 
-                doEntryActions me path-buffer
+                doEntryActions me
                 finaliseTransition me
-                dispatchInitial me path-buffer
+
+                ;; State is started only after the transition has completed.
+                startState me
             ]
 
             break ; Event processed
@@ -138,14 +138,6 @@ HsmToLca: funct [
 
 ;; Helper routines ------------------
 
-setCurrentState: funct [
-    {Set current state with no transition waiting.}
-    me target-state
-][
-    me/current-state: target-state
-    me/target-state: none
-]
-
 finaliseTransition: funct [
     {This ends the transition to the target state.}
     me
@@ -176,48 +168,43 @@ HsmFindState: funct [
     none ; Not found.
 ]
 
-HsmCalculateAncestors: funct [
-    {Find ancestor states on path from current.}
-    me target-state path-buffer
+startState: funct [
+    me
 ][
-    clear path-buffer
-
-    ;; Trace the states on the path outwards from target to current.
-    st: target-state
-    while [st <> me/current-state][
-        append path-buffer st
-        st: st/super
-    ]
-
-    reverse path-buffer
-]
-
-dispatchInitial: funct [
-    {Dispatch initial transitions.}
-    me path-buffer
-][
-
-    ;; The state may make an initial transition to a nested sub state.
+    ;; When started, the state may make an initial transition to a nested sub state.
+    ;; The sub state may be more than 1 level below current.
+    ;; Initial transitions are valid only for states targetted by a transition,
+    ;; not every state entered.  An initial transition, may cause further
+    ;; initial transitions.
 
     while [
-        doStateEvent me/current-state me #initial-transition
-        me/target-state
+        doStateEvent me/current-state me #start_evt
+        me/target-state ; Is there a consequent initial transition?
     ][
-        doEntryActions me path-buffer
+        doEntryActions me
         finaliseTransition me
     ]
 ]
 
 doEntryActions: funct [
     {Enter states on path from current.}
-    me path-buffer
+    me
 ][
-    HsmCalculateAncestors me me/target-state path-buffer
+    ;; Target may more than 1 level below current.
+    ;; Calculate path from Current to target.
+
+    clear me/state-path
+    st: me/target-state
+    while [st <> me/current-state][
+        append me/state-path st
+        st: st/super
+    ]
+    reverse me/state-path    
 
     ;; Enter each state on path inwards from current to target.
     ;; The enter action allows a state to allocate resources.
 
-    foreach st path-buffer [
+    foreach st me/state-path [
         doStateEvent st me #enter-action
     ]
 ]
@@ -234,13 +221,14 @@ exitToLca: funct [
         toLCA: toLCA - 1
         st: st/super
     ]
-    setCurrentState me st
+    me/current-state: st
 ]
 
 doStateEvent: funct [
     me ctx msg
 ][
     cmt [{Event:} ctx/name me/name :msg]
+    ctx/event: :msg
     me/doEvent :ctx :msg
 ]
 
@@ -254,7 +242,11 @@ transition-into: funct [
     {Transition into target sub state.}
     me target
 ][
+    cmt [{Initial transition into} target/name]
+
     assert [none? me/target-state]
+    assert [#start_evt = me/event] ; Needs special initial transition handling.
+
     me/target-state: :target
 ]
 
@@ -296,6 +288,7 @@ make-watch: does [
 
         ; HSM Superclass
         super: none
+        state-path: copy []
 
         ; properties.
         tsec: tmin: thour: dday: dmonth: none
@@ -341,11 +334,11 @@ WatchCtor: funct [me][
 
 Watch_top: funct [me event][
     switch event [
-        #initial-transition [
-            transition-into me me/setting
+        #enter-action [
             return none
         ]
-        #enter-action [
+        #start_evt [
+            transition-into me me/setting
             return none
         ]
         #exit-action [
@@ -360,18 +353,18 @@ Watch_top: funct [me event][
 
 Watch_timekeeping: funct [me event][
     switch event [
-        #initial-transition [
-            ; Display most recently selected information: time or date,
-            ; default to time.
-            transition-into me either me/tkeepingHist [me/tkeepingHist][me/time]
-            return none
-        ]
         #display_evt [
             transition-to me me/setting [0] ; block simulates static variable.
             return none
         ]
         #tick_evt [
             cmt "tick."
+            return none
+        ]
+        #start_evt [
+            ; Display most recently selected information: time or date,
+            ; default to time.
+            transition-into me either me/tkeepingHist [me/tkeepingHist][me/time]
             return none
         ]
         #exit-action [
@@ -413,7 +406,7 @@ Watch_date: funct [me event][
 
 Watch_setting: funct [me event][
     switch event [
-        #initial-transition [
+        #start_evt [
             transition-into me me/hour
             return none
         ]
