@@ -66,18 +66,8 @@ HsmOnStart: funct [
 
     ;; When the state starts it may make an initial transition to a nested sub state,
     ;; which in turn needs to be started.
-    while [
-        doStateEvent me/current-state me #initial-transition
-        me/target-state
-    ][
-        ;; Process initial transition.
+    HsmInitialTransition me entryPath
 
-        ;; Enter each psuedostate inwards, including target.
-        HsmEnterSubstates me me/target-state entryPath
-
-        ;; Set target sub state as current.
-        HsmFinaliseTransition me me/target-state
-    ]
     cmt [me/name {has completed startup.}]
 ]
 
@@ -100,10 +90,11 @@ HsmOnEvent: funct [
         if none? msg [
 
             ;; Event has been processed.
-            ;; The state may have requested a transition in response to the event.
+ 
             if me/target-state [
 
-                ; State transition required.
+                ;; The state started a transition in response to the event.
+                ;; Old states below the least common ancestor have already been exited.
 
                 ;; Enter each state inwards to target.
                 HsmEnterSubstates me me/target-state entryPath
@@ -113,16 +104,7 @@ HsmOnEvent: funct [
 
                 ;; When the state starts it may make an initial transition to a
                 ;; nested sub state, which in turn needs to be started.
-                while [
-                    doStateEvent me/current-state me #initial-transition
-                    me/target-state
-                ][
-                    ;; Enter each state inwards to super of target.
-                    HsmEnterSubstates me me/target-state/super entryPath
-
-                    ;; Set target state as current.
-                    HsmFinaliseTransition me me/target-state
-                ]
+                HsmInitialTransition me entryPath
             ]
 
             break ; Event processed
@@ -130,6 +112,28 @@ HsmOnEvent: funct [
 
         ;; Move outwards to super state to process the event.
         st: st/super
+    ]
+]
+
+HsmInitialTransition: funct [
+    {Dispatch initial transitions.}
+    me entryPath
+][
+
+    ;; When the state starts it may make an initial transition to a nested sub state,
+    ;; which in turn needs to be started.
+
+    while [
+        doStateEvent me/current-state me #initial-transition
+        me/target-state
+    ][
+        ;; Process initial transition.
+
+        ;; Enter each state inwards, including target.
+        HsmEnterSubstates me me/target-state entryPath
+
+        ;; Set target sub state as current.
+        HsmFinaliseTransition me me/target-state
     ]
 ]
 
