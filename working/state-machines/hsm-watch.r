@@ -58,24 +58,18 @@ HsmOnStart: funct [
     {Enter and start the top state.}
     me
 ][
-    entryPath: copy []
+    path-buffer: copy []
 
-    ;; Enter top state.
-    HsmFinaliseTransition me me/top-state
+    setCurrentState me me/top-state
     doStateEvent me/current-state me #enter-action
-
-    ;; When the state starts it may make an initial transition to a nested sub state,
-    ;; which in turn needs to be started.
-    HsmInitialTransition me entryPath
-
-    cmt [me/name {has completed startup.}]
+    dispatchInitial me path-buffer
 ]
 
 HsmOnEvent: funct [
     {Dispatch event to relevant state.}
     me msg
 ][
-    entryPath: copy []
+    path-buffer: copy []
 
     ;; Move through state hierarchy until event is handled.
 
@@ -85,55 +79,29 @@ HsmOnEvent: funct [
         ;; Handle the event with the state handler.
         ;; UML statecharts require the event to be the original event.
         ;; Possibly one could return a different event to communicate exceptions.
+
         msg: doStateEvent st me msg
 
         if none? msg [
 
-            ;; Event has been processed.
+            ;; We found a state to handle the event.
  
             if me/target-state [
 
                 ;; The state started a transition in response to the event.
                 ;; Old states below the least common ancestor have already been exited.
 
-                ;; Enter each state inwards to target.
-                HsmEnterSubstates me me/target-state entryPath
-
-                ;; Set target sub state as current.
-                HsmFinaliseTransition me me/target-state
-
-                ;; When the state starts it may make an initial transition to a
-                ;; nested sub state, which in turn needs to be started.
-                HsmInitialTransition me entryPath
+                doEntryActions me path-buffer
+                finaliseTransition me
+                dispatchInitial me path-buffer
             ]
 
             break ; Event processed
         ]
 
-        ;; Move outwards to super state to process the event.
+        ;; Event not processed.
+        ;; Search outwards for a state to process the event.
         st: st/super
-    ]
-]
-
-HsmInitialTransition: funct [
-    {Dispatch initial transitions.}
-    me entryPath
-][
-
-    ;; When the state starts it may make an initial transition to a nested sub state,
-    ;; which in turn needs to be started.
-
-    while [
-        doStateEvent me/current-state me #initial-transition
-        me/target-state
-    ][
-        ;; Process initial transition.
-
-        ;; Enter each state inwards, including target.
-        HsmEnterSubstates me me/target-state entryPath
-
-        ;; Set target sub state as current.
-        HsmFinaliseTransition me me/target-state
     ]
 ]
 
@@ -168,29 +136,22 @@ HsmToLca: funct [
     0 ; Not found.
 ]
 
-HsmExit: funct [
-    {Exit # of levels of state.}
-    me toLCA
-][
-    st: me/current-state
-    while [toLCA > 0][
-        doStateEvent st me #exit-action
-        toLCA: toLCA - 1
-        st: st/super
-    ]
-    me/current-state: st
-]
-
 ;; Helper routines ------------------
 
-HsmFinaliseTransition: funct [
-    {This ends the transition to the target state.}
+setCurrentState: funct [
+    {Set current state with no transition waiting.}
     me target-state
 ][
     me/current-state: target-state
     me/target-state: none
+]
 
-    cmt [{State} me/current-state/name {ready.}]
+finaliseTransition: funct [
+    {This ends the transition to the target state.}
+    me
+][
+    me/current-state: me/target-state
+    me/target-state: none
 ]
 
 HsmFindState: funct [
@@ -215,26 +176,65 @@ HsmFindState: funct [
     none ; Not found.
 ]
 
-HsmEnterSubstates: funct [
-    {Enter states on path from current.}
-    me target-state entryPath
+HsmCalculateAncestors: funct [
+    {Find ancestor states on path from current.}
+    me target-state path-buffer
 ][
-    clear entryPath
+    clear path-buffer
 
     ;; Trace the states on the path outwards from target to current.
     st: target-state
     while [st <> me/current-state][
-        append entryPath st
+        append path-buffer st
         st: st/super
     ]
 
-    reverse entryPath
+    reverse path-buffer
+]
+
+dispatchInitial: funct [
+    {Dispatch initial transitions.}
+    me path-buffer
+][
+
+    ;; The state may make an initial transition to a nested sub state.
+
+    while [
+        doStateEvent me/current-state me #initial-transition
+        me/target-state
+    ][
+        doEntryActions me path-buffer
+        finaliseTransition me
+    ]
+]
+
+doEntryActions: funct [
+    {Enter states on path from current.}
+    me path-buffer
+][
+    HsmCalculateAncestors me me/target-state path-buffer
 
     ;; Enter each state on path inwards from current to target.
-    ;; The enter event allows a state to allocate resources.
-    foreach st entryPath [
+    ;; The enter action allows a state to allocate resources.
+
+    foreach st path-buffer [
         doStateEvent st me #enter-action
     ]
+]
+
+exitToLca: funct [
+    {Exit # of levels of state.}
+    me toLCA
+][
+    ;; The exit action allows a state to deallocate resources.
+
+    st: me/current-state
+    while [toLCA > 0][
+        doStateEvent st me #exit-action
+        toLCA: toLCA - 1
+        st: st/super
+    ]
+    setCurrentState me st
 ]
 
 doStateEvent: funct [
@@ -271,9 +271,9 @@ transition-to: funct [
     ;; For any given transition the LCA needs to be calculated only once for the source
     ;; and target combination. It is characteristic of the Hsm (sub)class rather than
     ;; individual state machine objects.
-    ;; The original C code uses a macro to stores this static variable in the state's
+    ;; The original C code used a macro to store this static variable in the state's
     ;; handler code section that encodes/handles the transition.
-    ;; To achieve a similar effect here I use a third argument to transition-to to hold
+    ;; To achieve a similar intent here I use a third argument to transition-to to hold
     ;; the static structure.
 
     if zero? static-lca/1 [
@@ -281,7 +281,7 @@ transition-to: funct [
     ]
 
     ;; Exit state levels outwards to least common ancestor
-    HsmExit me static-lca/1
+    exitToLca me static-lca/1
 
     ;; Set transition target.
     me/target-state: :target
